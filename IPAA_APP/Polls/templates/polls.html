@@ -1,0 +1,16 @@
+{% extends 'layouts/page.html' %}
+
+{% block content %}
+<div class="page register-page">
+    <div class="header">
+        <h1 class="title">Perfil de Investidor</h1>
+    </div>
+    <h3 class="subtitle">Responda as perguntas abaixo para identificar seu perfil de investidor</h3>
+    <form method="POST" action="" class="register-form"> {% csrf_token %}
+        <div class="question-list-item">
+            {{ form.as_p }}
+        </div>
+        <input type="submit" value="Próximo" class="submit-button"/>
+    </form>
+</div>
+{% endblock %}
