@@ -1,0 +1,1 @@
+web: gunicorn --pythonpath IPAA_APP IPAA_APP.wsgi --log-file -
