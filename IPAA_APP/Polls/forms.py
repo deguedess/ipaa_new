@@ -5,7 +5,7 @@ from django.core.exceptions import NON_FIELD_ERRORS
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-from Polls.models import Acao, Pergunta, Resposta, Respostas_usuario, Usuario
+from Polls.models import Acao, Pergunta, Resposta, Respostas_usuario, Simulacao_cenarios, Usuario
 from Portfolio.models import Carteiras
 #from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -75,6 +75,14 @@ class SurveyForm(forms.Form):
             resp_user.usuario = Usuario.objects.get(pk=userid)
             resp_user.resposta = choice
             resp_user.save()
+
+
+class SimulatiomForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def quantidadeSimulacoes(self):
+        return Simulacao_cenarios.objects.count()
 
 
 class PortfolioForm(forms.Form):

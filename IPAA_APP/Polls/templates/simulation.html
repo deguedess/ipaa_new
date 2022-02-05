@@ -1,0 +1,21 @@
+{% extends 'layouts/page.html' %}
+
+{% block content %}
+<div class="page register-page">
+    <div class="header">
+        <h1 class="title">Simulação</h1>
+    </div>
+    <h3 class="subtitle">Vamos analisar agora sua carteira de açãoes com base em {{ form.quantidadeSimulacoes }} simulações.</h3>
+    <h4 class="subtitleSimulation">Simulação <u>1 de {{ form.quantidadeSimulacoes }}</u> - {{ simulacao.descricao }}</h4>
+    <h4 class="subtitleSimulation">Período da simulação: {{ simulacao.data_ini }} até {{ simulacao.data_fim }}</h4>
+
+    <div class="question-list-item">
+
+        {{ simulacao }}
+
+    </div>
+   
+</div>
+
+
+{% endblock %}

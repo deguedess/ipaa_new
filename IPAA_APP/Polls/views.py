@@ -2,12 +2,12 @@ from django.http.response import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.edit import CreateView
 
-from Polls.models import Pergunta, Usuario, Acao
+from Polls.models import Pergunta, Simulacao_cenarios, Usuario, Acao
 from django.template import loader
 from django.views import generic
 
 from Polls.portfolio import calculaPortfolio
-from .forms import RegisterUserForm, SurveyForm, PortfolioForm
+from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
 # Create your views here.
@@ -85,7 +85,7 @@ def portfolio(request):
             selected = form.save()
 
             calculaPortfolio.salvaPortfolio(cart, selected, acoesRec)
-
+            return redirect('simulation')
         else:
             for field in form:
                 print("Field Error:", field.name,  field.errors)
@@ -96,6 +96,19 @@ def portfolio(request):
         "cart": cart,
     }
     return render(request, 'portfolio.html', context)
+
+
+def simulation(request):
+
+    form = SimulatiomForm()
+
+    simulacao = Simulacao_cenarios.objects.all()
+
+    context = {
+        "form": form,
+        "simulacao": simulacao[0]#TODO
+    }
+    return render(request, 'simulation.html', context)
 
 
 class UsuarioListView(generic.ListView):
