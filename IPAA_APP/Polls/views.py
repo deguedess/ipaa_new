@@ -1,12 +1,15 @@
 from django.http.response import Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.edit import CreateView
+from django.urls import reverse
 
 from Polls.models import Pergunta, Simulacao_cenarios, Usuario, Acao
 from django.template import loader
 from django.views import generic
 
 from Polls.portfolio import calculaPortfolio
+from Polls.simulation import calculaSimulacoes
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
@@ -85,7 +88,8 @@ def portfolio(request):
             selected = form.save()
 
             calculaPortfolio.salvaPortfolio(cart, selected, acoesRec)
-            return redirect('simulation')
+            request.session['cenario_atual'] = 1
+            return HttpResponseRedirect(reverse('IPAA:simulation', args=(calculaSimulacoes.getPrimeiraSimulacao().id,)))
         else:
             for field in form:
                 print("Field Error:", field.name,  field.errors)
@@ -98,15 +102,33 @@ def portfolio(request):
     return render(request, 'portfolio.html', context)
 
 
-def simulation(request):
+def simulation(request, pk):
 
     form = SimulatiomForm()
 
-    simulacao = Simulacao_cenarios.objects.all()
+    simulacao = get_object_or_404(Simulacao_cenarios, id=pk)
+
+    qtde = calculaSimulacoes.getQtdeSimulacoes()
+
+    if request.method == 'POST':
+
+        if form.is_valid():
+
+            print('validouuuuuu')
+
+            request.session['cenario_atual'] = request.session['cenario_atual'] + 1
+
+            return HttpResponseRedirect(reverse('IPAA:simulation', args=(calculaSimulacoes.getSimulacaoPos(request.session['cenario_atual']).id,)))
+
+        else:
+            for field in form:
+                print("Field Error:", field.name,  field.errors)
 
     context = {
         "form": form,
-        "simulacao": simulacao[0]#TODO
+        "simulacao": simulacao,
+        "qtde": qtde,
+        "atual": request.session['cenario_atual'],
     }
     return render(request, 'simulation.html', context)
 

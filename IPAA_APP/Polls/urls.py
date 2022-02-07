@@ -1,9 +1,11 @@
 from django.urls import path
 from . import views
 
+app_name = 'IPAA'
 urlpatterns = [
     path('', views.index, name='index'),
     path('polls', views.polls, name='polls'),
     path('portfolio', views.portfolio, name='portfolio'),
-    path('simulation', views.simulation, name='simulation'),
+    path('<int:pk>/simulation', views.simulation, name='simulation'),
+
 ]

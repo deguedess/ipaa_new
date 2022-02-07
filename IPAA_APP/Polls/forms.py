@@ -81,8 +81,7 @@ class SimulatiomForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def quantidadeSimulacoes(self):
-        return Simulacao_cenarios.objects.count()
+
 
 
 class PortfolioForm(forms.Form):
