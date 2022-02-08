@@ -4,8 +4,10 @@ from dataclasses import field
 from django.core.exceptions import NON_FIELD_ERRORS
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from Polls.admin import Carteira
 
 from Polls.models import Acao, Pergunta, Resposta, Respostas_usuario, Simulacao_cenarios, Usuario
+from Polls.simulation import calculaSimulacoes
 from Portfolio.models import Carteiras
 #from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -78,10 +80,11 @@ class SurveyForm(forms.Form):
 
 
 class SimulatiomForm(forms.Form):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, simula, userid, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-
+        acoesSim = calculaSimulacoes.getAcoesSimulacoes(simula)
+        carteira = Carteiras.objects.filter(usuario_id=userid)
 
 
 class PortfolioForm(forms.Form):

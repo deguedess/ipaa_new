@@ -24,4 +24,8 @@ class Simulacao_acao(models.Model):
         max_digits=7, decimal_places=2)
 
     def __str__(self):
-        return self.nome
+        return self.simulacao.nome + " - " + self.acao.nome
+
+    class Meta:
+        verbose_name = 'Simulação de Ação'
+        verbose_name_plural = 'Simulação de Ações'

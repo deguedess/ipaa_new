@@ -25,7 +25,7 @@ def index(request):
             if form.is_valid():
                 user = form.save()
                 request.session['usuario'] = user.id
-                return redirect('polls')
+                return redirect('IPAA:polls')
             else:
                 for field in form:
                     print("Field Error:", field.name,  field.errors)
@@ -49,7 +49,7 @@ def polls(request):
             form = SurveyForm(request.POST)
             if form.is_valid():
                 form = form.save(request.session['usuario'])
-                return redirect('portfolio')
+                return redirect('IPAA:portfolio')
             else:
                 for field in form:
                     print("Field Error:", field.name,  field.errors)
@@ -104,9 +104,9 @@ def portfolio(request):
 
 def simulation(request, pk):
 
-    form = SimulatiomForm()
-
     simulacao = get_object_or_404(Simulacao_cenarios, id=pk)
+
+    form = SimulatiomForm(simulacao, request.session['usuario'])
 
     qtde = calculaSimulacoes.getQtdeSimulacoes()
 
@@ -116,7 +116,8 @@ def simulation(request, pk):
 
             print('validouuuuuu')
 
-            request.session['cenario_atual'] = request.session['cenario_atual'] + 1
+            if (request.session['cenario_atual'] < qtde):
+                request.session['cenario_atual'] = request.session['cenario_atual'] + 1
 
             return HttpResponseRedirect(reverse('IPAA:simulation', args=(calculaSimulacoes.getSimulacaoPos(request.session['cenario_atual']).id,)))
 
