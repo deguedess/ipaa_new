@@ -106,7 +106,12 @@ def simulation(request, pk):
 
     simulacao = get_object_or_404(Simulacao_cenarios, id=pk)
 
-    form = SimulatiomForm(simulacao, request.session['usuario'])
+    userid = request.session['usuario']
+
+    form = SimulatiomForm()
+
+    cartUser = SimulatiomForm.getCarteira(userid)
+    acoesSimula = SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser)
 
     qtde = calculaSimulacoes.getQtdeSimulacoes()
 

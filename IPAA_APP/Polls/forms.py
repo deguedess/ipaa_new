@@ -1,6 +1,7 @@
 import datetime
 
 from dataclasses import field
+from pickle import FALSE
 from django.core.exceptions import NON_FIELD_ERRORS
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -80,11 +81,22 @@ class SurveyForm(forms.Form):
 
 
 class SimulatiomForm(forms.Form):
-    def __init__(self, simula, userid, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        #cart = SimulatiomForm.getCarteira(userid)
 
-        acoesSim = calculaSimulacoes.getAcoesSimulacoes(simula)
-        carteira = Carteiras.objects.filter(usuario_id=userid)
+    def getCarteira(userid):
+        return Carteiras.objects.get(usuario_id=userid)
+
+    def getAcoesSimulacao(self, simula, cart):
+        simu = calculaSimulacoes.getAcoesSimulacoes(simula)
+
+        for obj in simu:
+            print(obj.acao)
+            criaCamposForm.criaCamposBool(
+                self, obj.acao, True if obj.acao in cart.acoes.all() else False)
+
+        return simu
 
 
 class PortfolioForm(forms.Form):

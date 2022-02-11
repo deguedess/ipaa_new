@@ -17,6 +17,8 @@ a {
 ul {
   list-style: none;
   padding: 0;
+  margin-block-start: 5px;
+  margin-block-end: 5px;
 }
 
 blockquote {
@@ -84,7 +86,6 @@ blockquote {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px;
   border-radius: 20px;
   background: #417690;
   color: #ffc;
@@ -103,6 +104,14 @@ blockquote {
   font-weight: 700;
   text-align: center;
   color: #417690;
+}
+
+.titleSimulation {
+  margin: 0px auto 10px auto;
+  font-weight: 700;
+  color: #204e64;
+  margin-top: 20px;
+  margin-bottom: 5px;
 }
 
 .question-list-item a:hover {

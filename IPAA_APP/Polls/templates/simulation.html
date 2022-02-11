@@ -7,15 +7,30 @@
     </div>
     <h3 class="subtitle">Vamos analisar agora sua carteira de ações com base em {{ qtde }} simulações.</h3>
     <h4 class="subtitleSimulation">Simulação <u>{{ atual }} de {{ qtde }}</u> - {{ simulacao.descricao }}</h4>
-    <h4 class="subtitleSimulation">Período da simulação: {{ simulacao.data_ini }} até {{ simulacao.data_fim }}</h4>
+    <h4 class="subtitleSimulation">Período da Simulação: {{ simulacao.data_ini|date:"d/m/Y"}} até {{ simulacao.data_fim|date:"d/m/Y" }}</h4>
+
+    <hr>
 
     <form method="POST" action="" class="register-form"> {% csrf_token %}
+        
+        <div class="titleSimulation"> Sua Carteira: </div>
         <div class="question-list-item">
+            {% for field in form %}
+                {% if field.value  %}
+                    <ul>{{field }}  {{field.label}}  </ul>
+                {% endif %} 
+            {% endfor %}
+        </div>
 
-            {{ simulacao }}
+        </br>
 
-            
-
+        <div class="titleSimulation"> Outras Ações: </div>
+        <div class="question-list-item">
+            {% for field in form %}
+                {% if field.value == False %}
+                    <ul>{{field }}  {{field.label}}  </ul>
+                {% endif %}
+            {% endfor %}
         </div>
     
     <input type="submit" value="Próximo" class="submit-button"/>
