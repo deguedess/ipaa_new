@@ -92,7 +92,6 @@ class SimulatiomForm(forms.Form):
         simu = calculaSimulacoes.getAcoesSimulacoes(simula)
 
         for obj in simu:
-            print(obj.acao)
             criaCamposForm.criaCamposBool(
                 self, obj.acao, True if obj.acao in cart.acoes.all() else False)
 

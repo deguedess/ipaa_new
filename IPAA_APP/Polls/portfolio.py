@@ -122,13 +122,6 @@ class calculaPortfolio():
 
     def salvaPortfolio(carteira, acoesSelected, recomended):
 
-        print("1")
-        print(carteira.acoes.all())
-        print("2")
-        print(acoesSelected)
-        print("3")
-        print(recomended)
-
         if (carteira.tipo_grupo == 0):
             calculaPortfolio.salvaHistoricoCarteiraIA(
                 carteira, acoesSelected, recomended)
@@ -139,7 +132,6 @@ class calculaPortfolio():
         # salva as acoes na carteira
         carteira.acoes.set(acoesSelected)
         carteira.save()
-        print('ta salvo')
 
 
 # metodo para salvar alteração de carteira
@@ -170,6 +162,12 @@ class calculaPortfolio():
         for acao in acoes:
             calculaPortfolio.registraAlteracao(
                 acao, carteira, oper, recIA, segRec, motivo, simulacao)
+
+    def getHistoricoAlteracao(carteira, simula):
+        return Hist_alt_carteira.objects.filter(carteira=carteira, simulacao=simula)
+
+    def getHistoricoAlteracaoCart(carteira):
+        return Hist_alt_carteira.objects.filter(carteira=carteira)
 
 
 # metodo para verificar quais as ações se encaixam no perfil

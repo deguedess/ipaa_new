@@ -9,6 +9,7 @@ from django.template import loader
 from django.views import generic
 
 from Polls.portfolio import calculaPortfolio
+from Polls.security import checkAccess
 from Polls.simulation import calculaSimulacoes
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
@@ -25,6 +26,10 @@ def index(request):
             if form.is_valid():
                 user = form.save()
                 request.session['usuario'] = user.id
+                request.session['url'] = 'IPAA:polls'
+                request.session['simula'] = None
+                request.session['trava'] = False
+
                 return redirect('IPAA:polls')
             else:
                 for field in form:
@@ -42,13 +47,20 @@ def index(request):
 
 
 def polls(request):
+
+    userid = request.session['usuario']
+
+    if (checkAccess.canAccessPolls(userid) == False):
+        return redirect('IPAA:error')
+
     form = SurveyForm()
 
     if request.method == 'POST':
         try:
             form = SurveyForm(request.POST)
             if form.is_valid():
-                form = form.save(request.session['usuario'])
+                form = form.save(userid)
+                request.session['url'] = 'IPAA:portfolio'
                 return redirect('IPAA:portfolio')
             else:
                 for field in form:
@@ -67,6 +79,9 @@ def portfolio(request):
     userid = request.session['usuario']
 
     tipo = userid % 2
+
+    if (request.session['trava'] and checkAccess.canAccessSimulation(userid, None) == False):
+        return redirect('IPAA:error')
 
     perf = calculaPortfolio.verificaPerfil(userid)
 
@@ -87,9 +102,14 @@ def portfolio(request):
         if form.is_valid():
             selected = form.save()
 
+            idSimula = calculaSimulacoes.getPrimeiraSimulacao().id
+
+            request.session['url'] = 'IPAA:simulation'
+            request.session['simula'] = idSimula
+
             calculaPortfolio.salvaPortfolio(cart, selected, acoesRec)
             request.session['cenario_atual'] = 1
-            return HttpResponseRedirect(reverse('IPAA:simulation', args=(calculaSimulacoes.getPrimeiraSimulacao().id,)))
+            return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
         else:
             for field in form:
                 print("Field Error:", field.name,  field.errors)
@@ -104,9 +124,13 @@ def portfolio(request):
 
 def simulation(request, pk):
 
+    userid = request.session['usuario']
+    request.session['trava'] = True
+
     simulacao = get_object_or_404(Simulacao_cenarios, id=pk)
 
-    userid = request.session['usuario']
+    if (checkAccess.canAccessSimulation(userid, simulacao) == False):
+        return redirect('IPAA:error')
 
     form = SimulatiomForm()
 
@@ -116,15 +140,23 @@ def simulation(request, pk):
     qtde = calculaSimulacoes.getQtdeSimulacoes()
 
     if request.method == 'POST':
+        form = SimulatiomForm(request.POST)
 
         if form.is_valid():
 
-            print('validouuuuuu')
-
             if (request.session['cenario_atual'] < qtde):
+
                 request.session['cenario_atual'] = request.session['cenario_atual'] + 1
 
-            return HttpResponseRedirect(reverse('IPAA:simulation', args=(calculaSimulacoes.getSimulacaoPos(request.session['cenario_atual']).id,)))
+                idSimula = calculaSimulacoes.getSimulacaoPos(
+                    request.session['cenario_atual']).id
+
+                request.session['url'] = 'IPAA:simulation'
+                request.session['simula'] = idSimula
+
+                return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+            else:
+                return redirect('IPAA:end')
 
         else:
             for field in form:
@@ -137,6 +169,43 @@ def simulation(request, pk):
         "atual": request.session['cenario_atual'],
     }
     return render(request, 'simulation.html', context)
+
+
+def end(request):
+    #form = RegisterUserForm()
+
+    if request.method == 'POST':
+
+        print('POST')
+
+    context = {
+        # 'form': form,
+
+    }
+
+    return render(request, 'end.html', context)
+
+
+def error(request):
+    #form = RegisterUserForm()
+
+    url = request.session['url']
+
+    if request.method == 'POST':
+
+        idSimula = request.session['simula']
+
+        if (idSimula == None):
+            return HttpResponseRedirect(reverse(url))
+        else:
+            return HttpResponseRedirect(reverse(url, args=(idSimula,)))
+
+    context = {
+        # 'url': url,
+
+    }
+
+    return render(request, 'error.html', context)
 
 
 class UsuarioListView(generic.ListView):

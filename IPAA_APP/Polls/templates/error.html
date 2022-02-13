@@ -1,0 +1,22 @@
+{% extends 'layouts/page.html' %}
+
+
+{% block content %}
+
+
+<div class="page register-page">
+    <div class="header">
+        <h1 class="title">OPS</h1>
+    </div>
+
+    <h3 class="subtitle">Você não pode acessar essa página.</h3>
+    
+    <form method="POST" action="" class="register-form"> {% csrf_token %}
+        <input type="submit" value="Clique aqui para voltar" class="submit-button-error"/>
+    </form>
+
+
+</div>
+
+
+{% endblock %}
