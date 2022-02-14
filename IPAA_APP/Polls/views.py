@@ -10,7 +10,7 @@ from django.views import generic
 
 from Polls.portfolio import calculaPortfolio
 from Polls.security import checkAccess
-from Polls.simulation import calculaSimulacoes
+from Polls.simulation import calculaSimulacoes, fieldInfo
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
@@ -137,7 +137,11 @@ def simulation(request, pk):
     cartUser = SimulatiomForm.getCarteira(userid)
     acoesSimula = SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser)
 
+    print(acoesSimula)
+
     qtde = calculaSimulacoes.getQtdeSimulacoes()
+
+    listAll = calculaSimulacoes.getInfAcoesSimulacaoes(form, simulacao)
 
     if request.method == 'POST':
         form = SimulatiomForm(request.POST)
@@ -167,6 +171,7 @@ def simulation(request, pk):
         "simulacao": simulacao,
         "qtde": qtde,
         "atual": request.session['cenario_atual'],
+        "lista": listAll
     }
     return render(request, 'simulation.html', context)
 

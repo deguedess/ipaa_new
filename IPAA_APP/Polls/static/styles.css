@@ -73,6 +73,33 @@ blockquote {
   max-width: 80%;
 }
 
+.td-number {
+  text-align: center;
+}
+
+.td-title {
+  padding-left: 2px;
+  text-align: center;
+}
+
+table,
+th,
+td {
+  border: 3px solid;
+  border-collapse: collapse;
+  border-color: white;
+}
+
+.NegativeTransaction {
+  color: #bd1616;
+  text-align: center;
+}
+
+.PositiveTransaction {
+  color: #10b118;
+  text-align: center;
+}
+
 .title {
   margin: 20px auto 30px auto;
   font-weight: 900;

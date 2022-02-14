@@ -89,6 +89,7 @@ class SimulatiomForm(forms.Form):
         return Carteiras.objects.get(usuario_id=userid)
 
     def getAcoesSimulacao(self, simula, cart):
+
         simu = calculaSimulacoes.getAcoesSimulacoes(simula)
 
         for obj in simu:
