@@ -77,14 +77,34 @@ blockquote {
   text-align: center;
 }
 
-.td-title {
-  padding-left: 2px;
-  text-align: center;
+.td-info {
+  padding-left: 20px;
 }
 
-table,
+.td-title {
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  font-weight: 700;
+  min-width: 90px;
+}
+
+.td-title-name {
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  font-weight: 700;
+  min-width: 200px;
+}
+
+.td-title-name-max {
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  font-weight: 700;
+  min-width: 438px;
+}
+
 th,
-td {
+td,
+.table-acao {
   border: 3px solid;
   border-collapse: collapse;
   border-color: white;
@@ -150,6 +170,16 @@ td {
   color: black;
   font-size: 18px;
   font-weight: 700;
+  margin-bottom: 10px;
+  padding: 24px;
+  border-radius: 20px;
+  background-color: #f8f8f8;
+}
+
+.acao-item {
+  color: black;
+  font-size: 18px;
+  font-weight: 500;
   margin-bottom: 10px;
   padding: 24px;
   border-radius: 20px;

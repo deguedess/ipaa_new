@@ -14,34 +14,23 @@
     <form method="POST" action="" class="register-form"> {% csrf_token %}
         
         <div class="titleSimulation"> Sua Carteira: </div>
-        <div class="question-list-item">
-            {% for field in form %}
-                {% if field.value  %}
-                    <ul>{{field }}  {{field.label}}  </ul>
-                {% endif %} 
-            {% endfor %}
-        </div>
-
-        </br>
-
-        <div class="titleSimulation"> Outras Ações: </div>
-        <div class="question-list-item">
+        <div class="acao-item">
             
-            <table border=1>
+            <table >
                 <tr>
                     <td></td>
-                    <td>Ação</td>
+                    <td class="td-title-name">Ação</td>
                     <td class="td-title">Preço Anterior</td>
                     <td class="td-title">Preço Atual</td>
-                    <td class="td-number">%</td>
+                    <td class="td-title">%</td>
                 </tr>
             {% for fieldInfo in lista %}
                 <tr>
-                {% if fieldInfo.field.value == False %}
+                {% if fieldInfo.field.value %}
                 <td>{{ fieldInfo.field }} </td> 
                 <td> {{ fieldInfo.field.label}}  </td> 
-                <td class="td-number">{{ fieldInfo.valorAntigo }}</td>
-                <td class="td-number">{{ fieldInfo.valorAtual }}</td>
+                <td class="td-number"> R$ {{ fieldInfo.valorAntigo }}</td>
+                <td class="td-number"> R$ {{ fieldInfo.valorAtual }}</td>
                     {% if fieldInfo.percent < 0%}
                         <td class="NegativeTransaction">{{ fieldInfo.percent|floatformat:2 }} %</td>
                     {% else %}
@@ -51,6 +40,39 @@
                 </tr>
             {% endfor %}
             </table>
+
+        </div>
+
+        </br>
+
+        <div class="titleSimulation"> Outras Ações: </div>
+        <div class="acao-item">
+            
+            <table>
+                <tr>
+                    <td></td>
+                    <td class="td-title-name">Ação</td>
+                    <td class="td-title">Preço Anterior</td>
+                    <td class="td-title">Preço Atual</td>
+                    <td class="td-title">%</td>
+                </tr>
+            {% for fieldInfo in lista %}
+                <tr>
+                {% if fieldInfo.field.value == False %}
+                <td>{{ fieldInfo.field }} </td> 
+                <td> {{ fieldInfo.field.label}}  </td> 
+                <td class="td-number"> R$ {{ fieldInfo.valorAntigo }}</td>
+                <td class="td-number"> R$ {{ fieldInfo.valorAtual }}</td>
+                    {% if fieldInfo.percent < 0%}
+                        <td class="NegativeTransaction">{{ fieldInfo.percent|floatformat:2 }} %</td>
+                    {% else %}
+                        <td class="PositiveTransaction">{{ fieldInfo.percent|floatformat:2 }} %</td>
+                    {% endif %}
+                {% endif %}
+                </tr>
+            {% endfor %}
+            </table>
+
         </div>
     
     <input type="submit" value="Próximo" class="submit-button"/>

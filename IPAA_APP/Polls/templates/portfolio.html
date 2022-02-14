@@ -24,14 +24,24 @@
     {% endif %} 
 
     <form method="POST" action="" class="register-form"> {% csrf_token %}
-        <div class="question-list-item" >
-
+        
+        <div class="acao-item">
+            
+            <table>
+                <tr>
+                    <td class="td-title">Adicionar</td>
+                    <td class="td-title-name-max">Ação</td>
+                </tr>
             {% for field in form %}
-                <ul>{{field }}  {{field.label}}  </ul>
+                <tr>
+                    <td class="td-number">{{ field }} </td> 
+                    <td class="td-info">{{ field.label}}</td> 
+                </tr>
             {% endfor %}
-          
-        </div>
+            </table>
 
+        </div>
+        
         <div class="question-list-error">
             {% if form.errors %}
                 {% for field in form %}
