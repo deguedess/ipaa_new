@@ -83,7 +83,6 @@ class SurveyForm(forms.Form):
 class SimulatiomForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #cart = SimulatiomForm.getCarteira(userid)
 
     def getCarteira(userid):
         return Carteiras.objects.get(usuario_id=userid)
@@ -96,7 +95,41 @@ class SimulatiomForm(forms.Form):
             criaCamposForm.criaCamposBool(
                 self, obj.acao, True if obj.acao in cart.acoes.all() else False)
 
-        return simu
+        return self
+
+    def save(self, listaAcoesSimula):
+        data = self.cleaned_data
+
+        print('aqui vai: ')
+        print(data)
+
+        selected = []
+
+        for acSimula in listaAcoesSimula:
+            acao = acSimula.acao
+            checked = data[f"acao_{acao.id}"]
+            if (checked):
+                selected.append(acao)
+
+        return selected
+
+    def clean(self):
+        data = super().clean()
+
+        if (data == None):
+            #self.add_error(None, 'Selecione ao menos uma Ação')
+            return
+
+        # mudar para buscar cfe usuario
+        for acao in Acao.objects.order_by('codigo'):
+            try:
+                checked = data[f"acao_{acao.id}"]
+                if (checked):
+                    return
+            except:
+                pass
+
+        self.add_error(None, 'Selecione ao menos uma Ação')
 
 
 class PortfolioForm(forms.Form):

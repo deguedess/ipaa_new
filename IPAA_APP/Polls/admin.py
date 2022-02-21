@@ -15,7 +15,7 @@ class MotivoAdmin(admin.ModelAdmin):
 
 @admin.register(Acao)
 class AcaoAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'codigo', 'nome')
 
 
 @admin.register(Grau_Instrucao)

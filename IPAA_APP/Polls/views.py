@@ -134,19 +134,31 @@ def simulation(request, pk):
 
     form = SimulatiomForm()
 
+    # Busca a carteira do usuario
     cartUser = SimulatiomForm.getCarteira(userid)
-    acoesSimula = SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser)
 
-    print(acoesSimula)
+    # Criar os campos na tela
+    SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser)
 
     qtde = calculaSimulacoes.getQtdeSimulacoes()
 
     listAll = calculaSimulacoes.getInfAcoesSimulacaoes(form, simulacao)
 
+    # TODO
+    acoesRec = None
+
+    if (cartUser.tipo_grupo == 0):
+        acoesRec = Acao.objects.order_by('codigo')[:3]
+
     if request.method == 'POST':
         form = SimulatiomForm(request.POST)
 
         if form.is_valid():
+
+            selected = form.save(
+                calculaSimulacoes.getAcoesSimulacoes(simulacao))
+
+            calculaPortfolio.salvaPortfolio(cartUser, selected, acoesRec)
 
             if (request.session['cenario_atual'] < qtde):
 
@@ -163,6 +175,7 @@ def simulation(request, pk):
                 return redirect('IPAA:end')
 
         else:
+            print('not valid')
             for field in form:
                 print("Field Error:", field.name,  field.errors)
 
