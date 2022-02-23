@@ -5,7 +5,7 @@ from django.views.generic.edit import CreateView
 from django.urls import reverse
 
 from Polls.models import Pergunta, Simulacao_cenarios, Usuario, Acao
-from django.template import loader
+from django.template import RequestContext, loader
 from django.views import generic
 
 from Polls.portfolio import calculaPortfolio
@@ -107,7 +107,7 @@ def portfolio(request):
             request.session['url'] = 'IPAA:simulation'
             request.session['simula'] = idSimula
 
-            calculaPortfolio.salvaPortfolio(cart, selected, acoesRec)
+            calculaPortfolio.salvaPortfolio(cart, selected, acoesRec, None)
             request.session['cenario_atual'] = 1
             return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
         else:
@@ -151,14 +151,16 @@ def simulation(request, pk):
         acoesRec = Acao.objects.order_by('codigo')[:3]
 
     if request.method == 'POST':
-        form = SimulatiomForm(request.POST)
+        post = request.POST
+        form = SimulatiomForm(post)
 
         if form.is_valid():
 
             selected = form.save(
-                calculaSimulacoes.getAcoesSimulacoes(simulacao))
+                calculaSimulacoes.getAcoesSimulacoes(simulacao), post)
 
-            calculaPortfolio.salvaPortfolio(cartUser, selected, acoesRec)
+            calculaPortfolio.salvaPortfolio(
+                cartUser, selected, acoesRec, simulacao)
 
             if (request.session['cenario_atual'] < qtde):
 
@@ -176,6 +178,7 @@ def simulation(request, pk):
 
         else:
             print('not valid')
+            print(form.errors)
             for field in form:
                 print("Field Error:", field.name,  field.errors)
 

@@ -77,11 +77,7 @@
 
         <div class="question-list-error">
             {% if form.errors %}
-                {% for field in form %}
-                    {% for error in field.errors %}
-                       {{ error|escape }}
-                    {% endfor %}
-                {% endfor %}
+                {{form.errors}}
             {% endif %}
         </div>
     

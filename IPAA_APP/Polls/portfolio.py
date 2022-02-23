@@ -70,7 +70,7 @@ class calculaPortfolio():
         else:
             return cart[0]
 
-    def salvaHistoricoCarteiraManual(cart, acoesSel):
+    def salvaHistoricoCarteiraManual(cart, acoesSel, simula):
 
         acoesCart = cart.acoes.all()
 
@@ -79,15 +79,15 @@ class calculaPortfolio():
             # Se a ação selecionada nao estiver na carteira, registra a alteração
             if (acSel not in acoesCart):
                 calculaPortfolio.registraAlteracao(
-                    acSel, cart, 'C', False, False, None, None)
+                    acSel, cart, 'C', False, False, None, simula)
 
         # verifica as ações na carteira
         for acCat in acoesCart:
             if (acCat not in acoesSel):
                 calculaPortfolio.registraAlteracao(
-                    acCat, cart, 'V', False, False, None, None)
+                    acCat, cart, 'V', False, False, None, simula)
 
-    def salvaHistoricoCarteiraIA(cart, acoesSel, acoesRec):
+    def salvaHistoricoCarteiraIA(cart, acoesSel, acoesRec, simula):
         acoesCart = cart.acoes.all()
 
         # verifica as acoes selecionadas = COMPRAS
@@ -97,10 +97,10 @@ class calculaPortfolio():
                 # verifica se a alteração foi recomendada ou nao
                 if (acSel in acoesRec):
                     calculaPortfolio.registraAlteracao(
-                        acSel, cart, 'C', True, True, None, None)
+                        acSel, cart, 'C', True, True, None, simula)
                 else:  # se nao for recomendação
                     calculaPortfolio.registraAlteracao(
-                        acSel, cart, 'C', False, False, None, None)
+                        acSel, cart, 'C', False, False, None, simula)
 
         # verificar as ações na carteira = VENDAS
         for acCart in acoesCart:
@@ -109,25 +109,25 @@ class calculaPortfolio():
                 # verificar se a venda foi recomendada ou nao
                 if (acCart in acoesRec):
                     calculaPortfolio.registraAlteracao(
-                        acCart, cart, 'V', False, False, None, None)
+                        acCart, cart, 'V', False, False, None, simula)
                 else:  # se nao for recomendação
                     calculaPortfolio.registraAlteracao(
-                        acCart, cart, 'V', True, True, None, None)
+                        acCart, cart, 'V', True, True, None, simula)
 
          # Verifica as RECOMENDADAS
         for acRec in acoesRec:
             if (acRec not in acoesSel):
                 calculaPortfolio.registraAlteracao(
-                    acRec, cart, 'C', True, False, None, None)
+                    acRec, cart, 'C', True, False, None, simula)
 
-    def salvaPortfolio(carteira, acoesSelected, recomended):
+    def salvaPortfolio(carteira, acoesSelected, recomended, simula):
 
         if (carteira.tipo_grupo == 0):
             calculaPortfolio.salvaHistoricoCarteiraIA(
-                carteira, acoesSelected, recomended)
+                carteira, acoesSelected, recomended, simula)
         else:
             calculaPortfolio.salvaHistoricoCarteiraManual(
-                carteira, acoesSelected)
+                carteira, acoesSelected, simula)
 
         # salva as acoes na carteira
         carteira.acoes.set(acoesSelected)

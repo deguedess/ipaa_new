@@ -97,18 +97,14 @@ class SimulatiomForm(forms.Form):
 
         return self
 
-    def save(self, listaAcoesSimula):
-        data = self.cleaned_data
-
-        print('aqui vai: ')
-        print(data)
+    def save(self, listaAcoesSimula, listaAll):
 
         selected = []
 
         for acSimula in listaAcoesSimula:
             acao = acSimula.acao
-            checked = data[f"acao_{acao.id}"]
-            if (checked):
+
+            if (f"acao_{acao.id}" in listaAll):
                 selected.append(acao)
 
         return selected
@@ -129,7 +125,7 @@ class SimulatiomForm(forms.Form):
             except:
                 pass
 
-        self.add_error(None, 'Selecione ao menos uma Ação')
+       # self.add_error(None, 'Selecione ao menos uma Ação')
 
 
 class PortfolioForm(forms.Form):
