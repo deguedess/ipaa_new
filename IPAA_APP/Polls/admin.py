@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from Polls.models import Acao, Grau_Instrucao, Motivo, Perfil, Pergunta, Profissao, Resposta, Simulacao_cenarios, Usuario, Respostas_usuario
 from Portfolio.models import Carteiras, Hist_alt_carteira
-from Simulation.models import Simulacao_acao
+from Simulation.models import Carteira_Simulacao, Simulacao_acao
 
 
 # Register your models here.
@@ -77,3 +77,9 @@ class Hist_alt_carteira(admin.ModelAdmin):
 class Simulacao_acao(admin.ModelAdmin):
     list_display = ('acao', 'simulacao', 'valor_ant', 'valor_novo')
     list_filter = ('simulacao', 'acao')
+
+
+@admin.register(Carteira_Simulacao)
+class Carteira_Simulacao(admin.ModelAdmin):
+    list_display = ('carteira', 'simulacao', 'percentual')
+    list_filter = ('carteira', 'simulacao')

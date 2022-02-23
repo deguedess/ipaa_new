@@ -1,6 +1,7 @@
 from django.db import models
 
 from Polls.models import Acao, Simulacao_cenarios
+from Portfolio.models import Carteiras
 
 # Create your models here.
 #
@@ -29,3 +30,18 @@ class Simulacao_acao(models.Model):
     class Meta:
         verbose_name = 'Simulação de Ação'
         verbose_name_plural = 'Simulação de Ações'
+
+
+class Carteira_Simulacao(models.Model):
+    carteira = models.ForeignKey(
+        Carteiras, on_delete=models.CASCADE, null=False)
+
+    simulacao = models.ForeignKey(
+        Simulacao_cenarios, on_delete=models.CASCADE, null=False)
+
+    percentual = models.DecimalField(
+        max_digits=7, decimal_places=2)
+
+    class Meta:
+        verbose_name = 'Carteira Simulação'
+        verbose_name_plural = 'Carteira Simulações'
