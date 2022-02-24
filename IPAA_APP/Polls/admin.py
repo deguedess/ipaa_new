@@ -47,7 +47,7 @@ class RespostaAdmin(admin.ModelAdmin):
 
 @admin.register(Simulacao_cenarios)
 class PerfilAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'nome', 'data_ini', 'data_fim')
 
 
 @admin.register(Usuario)

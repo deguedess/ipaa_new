@@ -13,7 +13,7 @@
 
     <form method="POST" action="" class="register-form"> {% csrf_token %}
         
-        <div class="titleSimulation"> Sua Carteira: </div>
+        <div class="titleSimulation"> Sua Carteira: </div> 
         <div class="acao-item">
             
             <table >
@@ -40,8 +40,20 @@
                 </tr>
             {% endfor %}
             </table>
-
         </div>
+        
+            <table>
+                <tr>
+                    <td class="td-title">Desempenho de sua Carteira:</td>
+                    {% if percent < 0 %}
+                        <td class="NegativeTransaction"><b>{{ percent|floatformat:2 }} %</b></td>
+                    {% else %}
+                        <td class="PositiveTransaction"><b>{{ percent|floatformat:2 }} %</b></td>
+                    {% endif %}
+                </tr>
+            </table>
+
+        
 
         </br>
 

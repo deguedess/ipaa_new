@@ -2,7 +2,8 @@
 
 from django import forms
 from Polls.models import Simulacao_cenarios
-from Simulation.models import Simulacao_acao
+from Portfolio.models import Carteiras
+from Simulation.models import Carteira_Simulacao, Simulacao_acao
 
 
 class calculaSimulacoes():
@@ -13,11 +14,44 @@ class calculaSimulacoes():
     def getSimulacaoPos(pos):
         return Simulacao_cenarios.objects.all().order_by('data_ini')[pos]
 
+    def getSimulacaoPre(atual):
+        return Simulacao_cenarios.objects.all().order_by('data_ini')[atual-1]
+
     def getPrimeiraSimulacao():
         return Simulacao_cenarios.objects.all().order_by('data_ini')[1]
 
+    def getUltimaSimulacao():
+        return Simulacao_cenarios.objects.all().order_by('data_ini')[calculaSimulacoes.getQtdeSimulacoes()]
+
     def getAcoesSimulacoes(simulacao):
         return Simulacao_acao.objects.filter(simulacao=simulacao)
+
+    def getPercentualCarteira(carteira, simulacao):
+
+        listaAcao = carteira.acoes.all()
+        print('calculando para')
+        print(simulacao.id)
+
+        percent = 0
+        for acao in listaAcao:
+            simulas = Simulacao_acao.objects.filter(
+                acao=acao, simulacao=simulacao)
+            simulaAcao = simulas[0]
+            percent += ((simulaAcao.valor_novo -
+                        simulaAcao.valor_ant)/simulaAcao.valor_ant)*100
+
+        return percent
+
+    def salvaCarteiraSimulacao(carteira, percent, cenAtual):
+
+        simula = calculaSimulacoes.getSimulacaoPre(cenAtual)
+
+        cartSim = Carteira_Simulacao()
+        cartSim.carteira = carteira
+        cartSim.simulacao = simula
+        cartSim.percentual = percent
+
+        cartSim.save()
 
     def getInfAcoesSimulacaoes(form, simula):
 

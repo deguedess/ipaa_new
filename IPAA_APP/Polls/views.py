@@ -144,6 +144,9 @@ def simulation(request, pk):
 
     listAll = calculaSimulacoes.getInfAcoesSimulacaoes(form, simulacao)
 
+    # busca o percentual
+    percent = calculaSimulacoes.getPercentualCarteira(cartUser, simulacao)
+
     # TODO
     acoesRec = None
 
@@ -155,6 +158,10 @@ def simulation(request, pk):
         form = SimulatiomForm(post)
 
         if form.is_valid():
+
+            # salva o percentual que a carteira subiu naquela simulação
+            calculaSimulacoes.salvaCarteiraSimulacao(
+                cartUser, percent, request.session['cenario_atual'])
 
             selected = form.save(
                 calculaSimulacoes.getAcoesSimulacoes(simulacao), post)
@@ -187,20 +194,20 @@ def simulation(request, pk):
         "simulacao": simulacao,
         "qtde": qtde,
         "atual": request.session['cenario_atual'],
-        "lista": listAll
+        "lista": listAll,
+        "percent": percent
     }
     return render(request, 'simulation.html', context)
 
 
 def end(request):
-    #form = RegisterUserForm()
 
     if request.method == 'POST':
 
         print('POST')
 
     context = {
-        # 'form': form,
+        # "percent": percent
 
     }
 
