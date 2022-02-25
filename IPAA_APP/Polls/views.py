@@ -137,10 +137,12 @@ def simulation(request, pk):
     # Busca a carteira do usuario
     cartUser = SimulatiomForm.getCarteira(userid)
 
-    # Criar os campos na tela
-    SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser)
-
     qtde = calculaSimulacoes.getQtdeSimulacoes()
+
+    ultimoCenario = not request.session['cenario_atual'] < qtde
+
+    # Criar os campos na tela
+    SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser, ultimoCenario)
 
     listAll = calculaSimulacoes.getInfAcoesSimulacaoes(form, simulacao)
 
@@ -169,7 +171,7 @@ def simulation(request, pk):
             calculaPortfolio.salvaPortfolio(
                 cartUser, selected, acoesRec, simulacao)
 
-            if (request.session['cenario_atual'] < qtde):
+            if (not ultimoCenario):
 
                 request.session['cenario_atual'] = request.session['cenario_atual'] + 1
 
