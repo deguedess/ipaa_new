@@ -91,10 +91,10 @@ def portfolio(request):
     if (tipo == 0):
         acoesRec = Acao.objects.order_by('codigo')[:3]
 
-    cart = calculaPortfolio.criaCarteira(
-        userid, tipo, acoesRec)
+    cart = calculaPortfolio.criaCarteiraSemAcoes(
+        userid, tipo)
 
-    form = PortfolioForm(cart.acoes.all())
+    form = PortfolioForm(acoesRec)
 
     if request.method == 'POST':
         form = PortfolioForm(acoesRec, request.POST)
@@ -108,6 +108,8 @@ def portfolio(request):
             request.session['simula'] = idSimula
 
             calculaPortfolio.salvaPortfolio(cart, selected, acoesRec, None)
+            calculaPortfolio.criaAcoesCarteira(cart, selected)
+
             request.session['cenario_atual'] = 1
             return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
         else:
@@ -141,19 +143,20 @@ def simulation(request, pk):
 
     ultimoCenario = not request.session['cenario_atual'] < qtde
 
-    # Criar os campos na tela
-    SimulatiomForm.getAcoesSimulacao(form, simulacao, cartUser, ultimoCenario)
-
-    listAll = calculaSimulacoes.getInfAcoesSimulacaoes(form, simulacao)
-
-    # busca o percentual
-    percent = calculaSimulacoes.getPercentualCarteira(cartUser, simulacao)
-
     # TODO
     acoesRec = None
 
     if (cartUser.tipo_grupo == 0):
-        acoesRec = Acao.objects.order_by('codigo')[:3]
+        acoesRec = Acao.objects.order_by('id')[:3]
+
+    # Criar os campos na tela
+    SimulatiomForm.getAcoesSimulacao(form, simulacao, ultimoCenario, acoesRec)
+
+    listAll = calculaSimulacoes.getInfAcoesSimulacaoes(
+        form, simulacao, cartUser)
+
+    # busca o percentual
+    percent = calculaSimulacoes.getPercentualCarteira(cartUser, simulacao)
 
     if request.method == 'POST':
         post = request.POST

@@ -87,13 +87,13 @@ class SimulatiomForm(forms.Form):
     def getCarteira(userid):
         return Carteiras.objects.get(usuario_id=userid)
 
-    def getAcoesSimulacao(self, simula, cart, disabled):
+    def getAcoesSimulacao(self, simula, disabled, recomended):
 
         simu = calculaSimulacoes.getAcoesSimulacoes(simula)
 
         for obj in simu:
             criaCamposForm.criaCamposBool(
-                self, obj.acao, True if obj.acao in cart.acoes.all() else False)
+                self, obj.acao, True if obj.acao in recomended else False)
             self.fields[f"acao_{obj.acao.id}"].widget.attrs['disabled'] = disabled
 
         return self

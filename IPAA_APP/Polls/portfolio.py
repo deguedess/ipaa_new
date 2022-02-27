@@ -1,6 +1,7 @@
 import datetime
 from Polls.admin import Carteira
 from Polls.models import Perfil, Respostas_usuario, Simulacao_cenarios, Usuario, Motivo
+from Polls.simulation import calculaSimulacoes
 from Portfolio.models import Carteiras, Hist_alt_carteira, Acao
 
 # Metodo para buscar as respostas do usuario e definir o perfil
@@ -39,8 +40,7 @@ class calculaPortfolio():
 
 # metodo para criação da carteira inicial
 
-
-    def criaCarteira(userid, tipoGrupo, acoes):
+    def criaCarteiraSemAcoes(userid, tipoGrupo):
 
         cart = calculaPortfolio.verificaCarteira(userid)
 
@@ -52,15 +52,17 @@ class calculaPortfolio():
         cart.tipo_grupo = tipoGrupo
         cart.nome = 'Carteira ' + 'Automática' if tipoGrupo == 0 else 'Manual'
         cart.save()
+
+        # if (cart.tipo_grupo == 0):
+        #  calculaPortfolio.registraAlteracoes(
+        #   acoes, cart, 'C', True, True, None, None)
+
+        return cart
+
+    def criaAcoesCarteira(cart, acoes):
         if (acoes != None):
             cart.acoes.set(acoes)
             cart.save()
-
-            if (cart.tipo_grupo == 0):
-                calculaPortfolio.registraAlteracoes(
-                    acoes, cart, 'C', True, True, None, None)
-
-        return cart
 
     def verificaCarteira(userid):
         cart = Carteiras.objects.filter(usuario_id=userid)
@@ -122,6 +124,10 @@ class calculaPortfolio():
 
     def salvaPortfolio(carteira, acoesSelected, recomended, simula):
 
+        # se for a ultima simulacao, entao nao vai alterar nada na carteira, nem no historico
+        if (simula == calculaSimulacoes.getUltimaSimulacao()):
+            return
+
         if (carteira.tipo_grupo == 0):
             calculaPortfolio.salvaHistoricoCarteiraIA(
                 carteira, acoesSelected, recomended, simula)
@@ -135,6 +141,7 @@ class calculaPortfolio():
 
 
 # metodo para salvar alteração de carteira
+
 
     def registraAlteracao(acao, carteira, oper, recIA, segRec, motivo, simulacao):
 
@@ -171,7 +178,6 @@ class calculaPortfolio():
 
 
 # metodo para verificar quais as ações se encaixam no perfil
-
 
     def calculaAcoes():
         pass

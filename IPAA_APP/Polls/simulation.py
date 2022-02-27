@@ -53,7 +53,7 @@ class calculaSimulacoes():
 
         cartSim.save()
 
-    def getInfAcoesSimulacaoes(form, simula):
+    def getInfAcoesSimulacaoes(form, simula, cart):
 
         simu = calculaSimulacoes.getAcoesSimulacoes(simula)
 
@@ -65,6 +65,8 @@ class calculaSimulacoes():
             ff.valorAtual = simu[index].valor_novo
             ff.percent = ((ff.valorAtual - ff.valorAntigo)/ff.valorAntigo)*100
             ff.field = field
+            ff.carteira = True if simu[index].acao in cart.acoes.all(
+            ) else False
             listAll.append(ff)
             index += 1
 
@@ -77,3 +79,4 @@ class fieldInfo():
     valorAntigo = 0.
     valorAtual = 0.
     percent = 0.
+    carteira = False

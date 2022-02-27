@@ -26,7 +26,7 @@
                 </tr>
             {% for fieldInfo in lista %}
                 <tr>
-                {% if fieldInfo.field.value %}
+                {% if fieldInfo.carteira %}
                 <td>{{ fieldInfo.field }} </td> 
                 <td> {{ fieldInfo.field.label}}  </td> 
                 <td class="td-number"> R$ {{ fieldInfo.valorAntigo }}</td>
@@ -70,7 +70,7 @@
                 </tr>
             {% for fieldInfo in lista %}
                 <tr>
-                {% if fieldInfo.field.value == False %}
+                {% if fieldInfo.carteira == False %}
                 <td>{{ fieldInfo.field }} </td> 
                 <td> {{ fieldInfo.field.label}}  </td> 
                 <td class="td-number"> R$ {{ fieldInfo.valorAntigo }}</td>
