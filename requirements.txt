@@ -7,3 +7,4 @@ whitenoise==5.3.0
 pandas==1.4.1
 pandas_datareader==0.10
 matplotlib==3.4.3
+keras==2.8.0
