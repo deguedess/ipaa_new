@@ -91,6 +91,9 @@ class SimulatiomForm(forms.Form):
 
         simu = calculaSimulacoes.getAcoesSimulacoes(simula)
 
+        if (recomended == None):
+            recomended = []
+
         for obj in simu:
             criaCamposForm.criaCamposBool(
                 self, obj.acao, True if obj.acao in recomended else False)

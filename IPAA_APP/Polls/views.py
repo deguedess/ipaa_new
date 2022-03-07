@@ -11,6 +11,7 @@ from django.views import generic
 from Polls.portfolio import calculaPortfolio
 from Polls.security import checkAccess
 from Polls.simulation import calculaSimulacoes, fieldInfo
+from Portfolio.stockPrediction import PrevisaoAcoes
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
@@ -44,6 +45,21 @@ def index(request):
     }
 
     return render(request, 'index.html', context)
+
+
+def config(request):
+    # BEGIN TEST STOCK
+
+    PrevisaoAcoes.calculaPrevisaoSimulacao(
+        calculaSimulacoes.getPrimeiraSimulacao())
+
+    # END TEST STOCK
+    context = {
+        # 'form': form,
+
+    }
+
+    return render(request, 'config.html', context)
 
 
 def polls(request):
