@@ -8,4 +8,4 @@ pandas==1.4.1
 pandas_datareader==0.10
 matplotlib==3.4.3
 keras==2.8.0
-tensorflow==3.2.0
+tensorflow==2.8.0
