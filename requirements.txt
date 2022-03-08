@@ -8,3 +8,4 @@ pandas==1.4.1
 pandas_datareader==0.10
 keras==2.8.0
 tensorflow-cpu==2.8.0
+sklearn==1.0
