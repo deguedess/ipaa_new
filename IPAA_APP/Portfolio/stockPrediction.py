@@ -6,7 +6,6 @@ from pandas_datareader import data as web
 from datetime import timedelta
 import numpy as np
 
-import matplotlib.pyplot as plt
 from keras.models import Sequential
 from keras.layers import Dense, LSTM
 import math
