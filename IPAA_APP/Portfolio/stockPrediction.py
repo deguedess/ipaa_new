@@ -10,6 +10,7 @@ from keras.models import Sequential
 from keras.layers import Dense, LSTM
 import math
 from sklearn.preprocessing import MinMaxScaler
+from Polls.simulation import calculaSimulacoes
 
 
 from Simulation.models import Simulacao_acao
@@ -17,33 +18,64 @@ from Simulation.models import Simulacao_acao
 
 class PrevisaoAcoes():
 
+    def getAcoes(simAcao):
+        acoes = []
+        for sim in simAcao:
+            acoes.append(sim.acao)
+
+        return acoes
+
+    def getValoresBolsa(acao, data_ini, data_fim):
+        # busca os valores das ações no periodo definido na simulação
+        df = web.DataReader(acao + ".SA", data_source='yahoo',
+                            start=data_ini, end=data_fim)
+
+        # remove a data como index
+        df.reset_index(inplace=True)
+
+        return df
+
+    def salvaSimulacao(simulacao, acao, valorAnt, valorNovo):
+        simAcao = Simulacao_acao()
+        simAcao.acao = acao
+        simAcao.simulacao = simulacao
+        simAcao.valor_ant = float(valorAnt)
+        simAcao.valor_novo = float(valorNovo)
+        simAcao.save()
+
     def calculaPrevisaoSimulacao(simulacao):
-        AcoesSimula = Simulacao_acao.objects.filter(simulacao=simulacao)
+        AcoesSimula = PrevisaoAcoes.getAcoes(
+            Simulacao_acao.objects.filter(simulacao=simulacao))
+
         Acoes = Acao.objects.all()
+
+        firstSim = calculaSimulacoes.getSimulacaoInicial()
+
+        if (firstSim == simulacao):
+            dias = 0  # se for a primeira, deve pegar os valores reais, ou seja, executa a leitura e salva os valores reais
 
         dias = abs((simulacao.data_fim - simulacao.data_ini).days)
 
         # busca os dados de 1 ano até a data inicial #TODO usar + os dados historicos?
-        data_ini_simula = simulacao.data_ini - timedelta(365)
 
-        print(data_ini_simula)
-        print(simulacao.data_ini)
-        print(simulacao.data_fim)
-        print(dias)
+        print(firstSim.data_ini)
+        print(firstSim.data_fim)
 
         # dias usados no treinamento
-        dTraining = 100
+        dTraining = dias
 
         for acao in Acoes:
             if (acao not in AcoesSimula):
                 df = pd.DataFrame()
                 # try:
-                df = web.DataReader(acao.codigo + ".SA", data_source='yahoo',
-                                    start=data_ini_simula, end=simulacao.data_ini)
 
-                df.reset_index(inplace=True)
+                final_data = PrevisaoAcoes.getValoresBolsa(
+                    acao.codigo, firstSim.data_ini, firstSim.data_fim)
 
-                final_data = df
+                if (firstSim == simulacao):
+                    PrevisaoAcoes.salvaSimulacao(
+                        simulacao, acao, final_data['Close'].iloc[0], final_data['Close'].iloc[-1])
+                    continue
 
                 # 1. Pega somente os valores de fechamento
                 close_data = final_data.filter(['Close'])
@@ -57,12 +89,14 @@ class PrevisaoAcoes():
 
                 # 4. Criando um dataset de treinamento com 70% dos dados
                 training_data_len = math.ceil(len(dataset) * .7)
+                # pega somente os valores referentes ao 70%
                 train_data = scaled_data[0:training_data_len, :]
 
                 # 5. Separação entre x e y
-                x_train_data = []
-                y_train_data = []
-                for i in range(dTraining, len(train_data)):
+                x_train_data = []  # sao valores reais
+                y_train_data = []  # prediçao
+
+                for i in range(dTraining, training_data_len):
                     x_train_data = list(x_train_data)
                     y_train_data = list(y_train_data)
                     x_train_data.append(train_data[i-dTraining:i, 0])
@@ -89,6 +123,7 @@ class PrevisaoAcoes():
 
                 # 1. Creating a dataset for testing
                 test_data = scaled_data[training_data_len - dTraining:, :]
+
                 x_test = []
                 y_test = dataset[training_data_len:, :]
                 for i in range(dTraining, len(test_data)):
@@ -103,7 +138,8 @@ class PrevisaoAcoes():
                 predictions = model.predict(x_test)
                 predictions = scaler.inverse_transform(predictions)
 
-                rmse = np.sqrt(np.mean(((predictions - y_test)**2)))
+                # RMSE is the root mean squared error, which helps to measure the accuracy of the model.
+                #rmse = np.sqrt(np.mean(((predictions - y_test)**2)))
 
                 train = df[:training_data_len]
                 valid = df[training_data_len:]
@@ -111,6 +147,11 @@ class PrevisaoAcoes():
                 valid['Predictions'] = predictions
 
                 #print(valid[['Close', 'Predictions']])
+
+                # print(valid['Close'].iloc[-1])
+
+                PrevisaoAcoes.salvaSimulacao(
+                    simulacao, acao, valid['Close'].iloc[-1], valid['Predictions'].iloc[-1])
 
                 return
                # except Exception as e:

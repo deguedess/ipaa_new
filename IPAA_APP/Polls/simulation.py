@@ -20,6 +20,12 @@ class calculaSimulacoes():
     def getPrimeiraSimulacao():
         return Simulacao_cenarios.objects.all().order_by('data_ini')[1]
 
+    def getAllSimulacao():
+        return Simulacao_cenarios.objects.all().order_by('data_ini')
+
+    def getSimulacaoInicial():
+        return Simulacao_cenarios.objects.all().order_by('data_ini')[0]
+
     def getUltimaSimulacao():
         return Simulacao_cenarios.objects.all().order_by('data_ini')[calculaSimulacoes.getQtdeSimulacoes()]
 

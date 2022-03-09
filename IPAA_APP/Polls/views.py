@@ -50,8 +50,10 @@ def index(request):
 def config(request):
     # BEGIN TEST STOCK
 
-    PrevisaoAcoes.calculaPrevisaoSimulacao(
-        calculaSimulacoes.getPrimeiraSimulacao())
+    simulacoes = calculaSimulacoes.getAllSimulacao()
+
+    for simula in simulacoes:
+        PrevisaoAcoes.calculaPrevisaoSimulacao(simula)
 
     # END TEST STOCK
     context = {
