@@ -1,5 +1,6 @@
 
 
+from typing import final
 from Polls.models import Acao
 import pandas as pd
 from pandas_datareader import data as web
@@ -26,28 +27,43 @@ class PrevisaoAcoes():
         return acoes
 
     def getValoresBolsa(acao, data_ini, data_fim):
-        # busca os valores das ações no periodo definido na simulação
-        df = web.DataReader(acao + ".SA", data_source='yahoo',
-                            start=data_ini, end=data_fim)
 
-        # remove a data como index
-        df.reset_index(inplace=True)
+        try:
+            # busca os valores das ações no periodo definido na simulação
+            df = web.DataReader(acao + ".SA", data_source='yahoo',
+                                start=data_ini, end=data_fim)
 
-        return df
+            # remove a data como index
+            df.reset_index(inplace=True)
 
-    def salvaSimulacao(simulacao, acao, valorAnt, valorNovo):
+            return df
+        except Exception as e:
+            print(e)
+            return pd.DataFrame()
+
+    def salvaSimulacao(simulacao, acao, valorAnt, valorNovo, pos):
         simAcao = Simulacao_acao()
         simAcao.acao = acao
         simAcao.simulacao = simulacao
-        simAcao.valor_ant = float(valorAnt)
+
         simAcao.valor_novo = float(valorNovo)
+
+        if valorAnt == None:
+            simAcao.valor_ant = calculaSimulacoes.getPrecoUltimaSimulacao(
+                pos, acao)
+        else:
+            simAcao.valor_ant = float(valorAnt)
+
         simAcao.save()
 
-    def calculaPrevisaoSimulacao(simulacao):
+    def calculaPrevisaoSimulacao(simulacao, pos):
         AcoesSimula = PrevisaoAcoes.getAcoes(
             Simulacao_acao.objects.filter(simulacao=simulacao))
 
         Acoes = Acao.objects.all()
+
+        # cria uma lista para armazenar as infos e erros
+        erros = []
 
         firstSim = calculaSimulacoes.getSimulacaoInicial()
 
@@ -58,23 +74,24 @@ class PrevisaoAcoes():
 
         # busca os dados de 1 ano até a data inicial #TODO usar + os dados historicos?
 
-        print(firstSim.data_ini)
-        print(firstSim.data_fim)
-
         # dias usados no treinamento
         dTraining = dias
 
         for acao in Acoes:
+
             if (acao not in AcoesSimula):
-                df = pd.DataFrame()
-                # try:
 
                 final_data = PrevisaoAcoes.getValoresBolsa(
                     acao.codigo, firstSim.data_ini, firstSim.data_fim)
 
+                if (final_data.empty):
+                    erros.append('Acao ' + str(acao.codigo) +
+                                 ' não encontrada na base do Yahoo')
+                    continue
+
                 if (firstSim == simulacao):
                     PrevisaoAcoes.salvaSimulacao(
-                        simulacao, acao, final_data['Close'].iloc[0], final_data['Close'].iloc[-1])
+                        simulacao, acao, final_data['Close'].iloc[0], final_data['Close'].iloc[-1], None)
                     continue
 
                 # 1. Pega somente os valores de fechamento
@@ -125,7 +142,7 @@ class PrevisaoAcoes():
                 test_data = scaled_data[training_data_len - dTraining:, :]
 
                 x_test = []
-                y_test = dataset[training_data_len:, :]
+                #y_test = dataset[training_data_len:, :]
                 for i in range(dTraining, len(test_data)):
                     x_test.append(test_data[i-dTraining:i, 0])
 
@@ -141,8 +158,8 @@ class PrevisaoAcoes():
                 # RMSE is the root mean squared error, which helps to measure the accuracy of the model.
                 #rmse = np.sqrt(np.mean(((predictions - y_test)**2)))
 
-                train = df[:training_data_len]
-                valid = df[training_data_len:]
+                #train = df[:training_data_len]
+                valid = final_data[training_data_len:]
 
                 valid['Predictions'] = predictions
 
@@ -151,8 +168,7 @@ class PrevisaoAcoes():
                 # print(valid['Close'].iloc[-1])
 
                 PrevisaoAcoes.salvaSimulacao(
-                    simulacao, acao, valid['Close'].iloc[-1], valid['Predictions'].iloc[-1])
+                    simulacao, acao, None, valid['Predictions'].iloc[-1], pos)
 
-                return
                # except Exception as e:
                 #    print(e)

@@ -32,6 +32,19 @@ class calculaSimulacoes():
     def getAcoesSimulacoes(simulacao):
         return Simulacao_acao.objects.filter(simulacao=simulacao)
 
+    def getPrecoUltimaSimulacao(simulacaoPos, acao):
+        simulacao = calculaSimulacoes.getSimulacaoPre(simulacaoPos)
+
+        simulaA = Simulacao_acao.objects.filter(simulacao=simulacao, acao=acao)
+
+        if simulaA == None:
+            return 0.
+        else:
+            if simulaA.exists():
+                return simulaA[0].valor_novo
+            else:
+                return 0.
+
     def getPercentualCarteira(carteira, simulacao):
 
         listaAcao = carteira.acoes.all()

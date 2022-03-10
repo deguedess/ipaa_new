@@ -51,9 +51,11 @@ def config(request):
     # BEGIN TEST STOCK
 
     simulacoes = calculaSimulacoes.getAllSimulacao()
+    pos = 0
 
     for simula in simulacoes:
-        PrevisaoAcoes.calculaPrevisaoSimulacao(simula)
+        PrevisaoAcoes.calculaPrevisaoSimulacao(simula, pos)
+        pos += 1
 
     # END TEST STOCK
     context = {
