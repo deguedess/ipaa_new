@@ -1,1 +1,1 @@
-web: gunicorn --pythonpath IPAA_APP IPAA_APP.wsgi --log-file -
+web: gunicorn --pythonpath IPAA_APP IPAA_APP.wsgi --timeout 60 --log-file -
