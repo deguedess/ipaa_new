@@ -55,9 +55,11 @@ class calculaSimulacoes():
         for acao in listaAcao:
             simulas = Simulacao_acao.objects.filter(
                 acao=acao, simulacao=simulacao)
-            simulaAcao = simulas[0]
-            percent += ((simulaAcao.valor_novo -
-                        simulaAcao.valor_ant)/simulaAcao.valor_ant)*100
+
+            if (simulas):
+                simulaAcao = simulas[0]
+                percent += ((simulaAcao.valor_novo -
+                             simulaAcao.valor_ant)/simulaAcao.valor_ant)*100
 
         return percent
 

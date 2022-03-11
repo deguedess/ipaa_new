@@ -52,14 +52,15 @@ def config(request):
 
     simulacoes = calculaSimulacoes.getAllSimulacao()
     pos = 0
+    info = []
 
     for simula in simulacoes:
-        PrevisaoAcoes.calculaPrevisaoSimulacao(simula, pos)
+        info.extend(PrevisaoAcoes.calculaPrevisaoSimulacao(simula, pos))
         pos += 1
 
     # END TEST STOCK
     context = {
-        # 'form': form,
+        'infos': info,
 
     }
 

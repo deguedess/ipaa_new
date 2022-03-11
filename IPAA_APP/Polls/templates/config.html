@@ -12,5 +12,20 @@
     <h3 class="subtitle">Página utilizada para parametrização inicial da Inteligência Artificial</h3>
 </div>
 
+<div class="acao-item">
+    
+    <table >
+        <tr>
+        <td class="td-title-name">Log</td>
+        </tr>
+            {% for info in infos %}
+            <tr>
+            <td>
+                {{ info }}
+            </td>
+            </tr>
+            {% endfor %}
+    
+</div>
 
 {% endblock %}

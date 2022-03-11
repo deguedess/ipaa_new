@@ -63,7 +63,7 @@ class PrevisaoAcoes():
         Acoes = Acao.objects.all()
 
         # cria uma lista para armazenar as infos e erros
-        erros = []
+        info = []
 
         firstSim = calculaSimulacoes.getSimulacaoInicial()
 
@@ -79,14 +79,18 @@ class PrevisaoAcoes():
 
         for acao in Acoes:
 
-            if (acao not in AcoesSimula):
+            if (acao in AcoesSimula):
 
+                info.append('Ação ' + str(acao.codigo) +
+                            ' já cadastrada para ' + str(simulacao.nome))
+
+            else:
                 final_data = PrevisaoAcoes.getValoresBolsa(
                     acao.codigo, firstSim.data_ini, firstSim.data_fim)
 
                 if (final_data.empty):
-                    erros.append('Acao ' + str(acao.codigo) +
-                                 ' não encontrada na base do Yahoo')
+                    info.append('Ação ' + str(acao.codigo) +
+                                ' não encontrada na base do Yahoo ' + str(simulacao.nome))
                     continue
 
                 if (firstSim == simulacao):
@@ -170,5 +174,9 @@ class PrevisaoAcoes():
                 PrevisaoAcoes.salvaSimulacao(
                     simulacao, acao, None, valid['Predictions'].iloc[-1], pos)
 
+                info.append('Valores da Ação ' + str(acao.codigo) +
+                            ' foram cadastrados para ' + str(simulacao.nome))
                # except Exception as e:
                 #    print(e)
+
+        return info
