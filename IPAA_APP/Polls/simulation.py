@@ -2,7 +2,6 @@
 
 from django import forms
 from Polls.models import Simulacao_cenarios
-from Portfolio.models import Carteiras
 from Simulation.models import Carteira_Simulacao, Simulacao_acao
 
 

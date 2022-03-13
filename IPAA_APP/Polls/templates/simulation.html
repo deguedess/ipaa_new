@@ -13,7 +13,7 @@
 
     <form method="POST" action="" class="register-form"> {% csrf_token %}
         
-        <div class="titleSimulation"> Sua Carteira: </div> 
+        <div class="titleSimulation"> Sua Carteira Atual: </div> 
         <div class="acao-item">
             
             <table >
@@ -54,8 +54,9 @@
             </table>
 
         
-
-        </br>
+        <div class="question-list-error">
+            {{ form.non_field_errors }}
+        </div>
 
         <div class="titleSimulation"> Outras Ações: </div>
         <div class="acao-item">
@@ -87,11 +88,6 @@
 
         </div>
 
-        <div class="question-list-error">
-            {% if form.errors %}
-                {{form.errors}}
-            {% endif %}
-        </div>
     
     <input type="submit" value="Próximo" class="submit-button"/>
 </form>

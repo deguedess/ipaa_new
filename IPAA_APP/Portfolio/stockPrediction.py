@@ -64,6 +64,8 @@ class PrevisaoAcoes():
 
         # cria uma lista para armazenar as infos e erros
         info = []
+        info.append('Calculando os valores para: ' +
+                    str(simulacao.nome))
 
         firstSim = calculaSimulacoes.getSimulacaoInicial()
 
@@ -72,17 +74,15 @@ class PrevisaoAcoes():
 
         dias = abs((simulacao.data_fim - simulacao.data_ini).days)
 
-        # busca os dados de 1 ano até a data inicial #TODO usar + os dados historicos?
-
         # dias usados no treinamento
-        dTraining = dias
+        dTraining = dias * 2
 
         for acao in Acoes:
 
             if (acao in AcoesSimula):
 
                 info.append('Ação ' + str(acao.codigo) +
-                            ' já cadastrada para ' + str(simulacao.nome))
+                            ' já cadastrada ')
 
             else:
                 final_data = PrevisaoAcoes.getValoresBolsa(
@@ -90,7 +90,7 @@ class PrevisaoAcoes():
 
                 if (final_data.empty):
                     info.append('Ação ' + str(acao.codigo) +
-                                ' não encontrada na base do Yahoo ' + str(simulacao.nome))
+                                ' não encontrada na base do Yahoo')
                     continue
 
                 if (firstSim == simulacao):
@@ -175,7 +175,7 @@ class PrevisaoAcoes():
                     simulacao, acao, None, valid['Predictions'].iloc[-1], pos)
 
                 info.append('Valores da Ação ' + str(acao.codigo) +
-                            ' foram cadastrados para ' + str(simulacao.nome))
+                            ' foram cadastrados com sucesso')
                # except Exception as e:
                 #    print(e)
 

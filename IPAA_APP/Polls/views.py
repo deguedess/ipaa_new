@@ -1,16 +1,15 @@
-from django.http.response import Http404
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic.edit import CreateView
 from django.urls import reverse
 
 from Polls.models import Pergunta, Simulacao_cenarios, Usuario, Acao
-from django.template import RequestContext, loader
 from django.views import generic
 
 from Polls.portfolio import calculaPortfolio
 from Polls.security import checkAccess
-from Polls.simulation import calculaSimulacoes, fieldInfo
+from Polls.simulation import calculaSimulacoes
+from Portfolio.stockClustering import CategorizacaoAcoes
 from Portfolio.stockPrediction import PrevisaoAcoes
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
@@ -20,6 +19,10 @@ from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 def index(request):
     form = RegisterUserForm()
+
+    # TEST
+    CategorizacaoAcoes.categoriza()
+    # TESTE
 
     if request.method == 'POST':
         try:
@@ -182,6 +185,9 @@ def simulation(request, pk):
     if request.method == 'POST':
         post = request.POST
         form = SimulatiomForm(post)
+
+        form.cleanCheck(calculaSimulacoes.getAcoesSimulacoes(
+            simulacao), post, ultimoCenario)
 
         if form.is_valid():
 

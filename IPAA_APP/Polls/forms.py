@@ -113,23 +113,16 @@ class SimulatiomForm(forms.Form):
 
         return selected
 
-    def clean(self):
-        data = super().clean()
+    def cleanCheck(self, listaAcoesSimula, listaAll, ultimoCenario):
 
-        if (data == None):
-            #self.add_error(None, 'Selecione ao menos uma Ação')
+        if (ultimoCenario):
             return
 
-        # mudar para buscar cfe usuario
-        for acao in Acao.objects.order_by('codigo'):
-            try:
-                checked = data[f"acao_{acao.id}"]
-                if (checked):
-                    return
-            except:
-                pass
+        values = SimulatiomForm.save(self, listaAcoesSimula, listaAll)
 
-       # self.add_error(None, 'Selecione ao menos uma Ação')
+        if (values == None or not values):
+            self.add_error(
+                None, 'Você deve selecionar ao menos uma ação antes de prosseguir')
 
 
 class PortfolioForm(forms.Form):

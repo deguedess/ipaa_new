@@ -1,8 +1,7 @@
 import datetime
-from Polls.admin import Carteira
 from Polls.models import Perfil, Respostas_usuario, Simulacao_cenarios, Usuario, Motivo
 from Polls.simulation import calculaSimulacoes
-from Portfolio.models import Carteiras, Hist_alt_carteira, Acao
+from Portfolio.models import Carteiras, Hist_alt_carteira
 
 # Metodo para buscar as respostas do usuario e definir o perfil
 
