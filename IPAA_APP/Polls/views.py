@@ -21,7 +21,7 @@ def index(request):
     form = RegisterUserForm()
 
     # TEST
-    CategorizacaoAcoes.primeiraCategorizacao()
+    # CategorizacaoAcoes.primeiraCategorizacao()
     # TESTE
 
     if request.method == 'POST':

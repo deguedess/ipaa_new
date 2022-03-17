@@ -37,11 +37,6 @@ class CategorizacaoAcoes():
 
         clusters = CategorizacaoAcoes.clusterizacao(variation, names)
 
-        for cl in clusters:
-            len = cl.size
-            for i in range(len):
-                print(cl[i])
-
         CategorizacaoAcoes.iniciaPosClusterizacao(clusters)
 
     def iniciaPosClusterizacao(clusters):
@@ -49,26 +44,43 @@ class CategorizacaoAcoes():
         qtdePerfis = CategorizacaoAcoes.getQtdeNeceClusters()
 
         # se a quantidade de perfis for igual ao dos clusters, então não precisa fazer nada
-        if (qtdePerfis == clusters.size):
-            # TODO salvar qual cluster a ação faz parte
+        if (qtdePerfis == len(clusters)):
+
+            for cl in clusters:
+                tam = cl.size
+                for i in range(tam):
+                    CategorizacaoAcoes.salvaClusterAcao(
+                        cl[i], 'Cluster ' + str(i))
             return
 
-        if (qtdePerfis > clusters.size):
+        if (qtdePerfis > len(clusters)):
             # se tiver mais perfis
-            pass
+            dif = qtdePerfis - len(clusters)
+
+            for cl in clusters:
+                tam = cl.size
+                for i in range(tam):
+                    CategorizacaoAcoes.salvaClusterAcao(
+                        cl[i], 'Cluster ' + str(i))
+
         else:
             # se tiver mais clusters
-            pass
+            dif = len(clusters) - qtdePerfis
+
+            for cl in clusters:
+                tam = cl.size
+                for i in range(tam):
+                    CategorizacaoAcoes.salvaClusterAcao(
+                        cl[i], 'Cluster ' + str(i))
 
     def salvaClusterAcao(acao, cluster):
-        ac = Acao.objects.filter(codigo=acao)
+        ac = Acao.objects.get(codigo=acao)
 
-        if (ac.count() == 0):
+        if (ac == None):
             print('Acao nao encontrada: ' + acao)
             return
 
-        # TODO
-        #ac.cluster = cluster
+        ac.classificacao_ia = cluster
         ac.save()
 
     def getQtdeNeceClusters():
@@ -93,6 +105,7 @@ class CategorizacaoAcoes():
 
         clusters = []
         for i in range(n_labels + 1):
+            print(acoesNomes[labels == i])
             clusters.append(acoesNomes[labels == i])
 
         return clusters
