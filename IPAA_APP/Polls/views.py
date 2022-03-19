@@ -20,10 +20,6 @@ from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 def index(request):
     form = RegisterUserForm()
 
-    # TEST
-    # CategorizacaoAcoes.primeiraCategorizacao()
-    # TESTE
-
     if request.method == 'POST':
         try:
             form = RegisterUserForm(request.POST)
@@ -48,6 +44,18 @@ def index(request):
     }
 
     return render(request, 'index.html', context)
+
+
+def configCluster(request):
+
+    CategorizacaoAcoes.primeiraCategorizacao()
+    info = CategorizacaoAcoes.logCl
+
+    context = {
+        'infos': info,
+    }
+
+    return render(request, 'configCluster.html', context)
 
 
 def config(request):

@@ -9,7 +9,11 @@ from sklearn import cluster, covariance
 
 class CategorizacaoAcoes():
 
+    logCl = []
+
     def primeiraCategorizacao():
+        CategorizacaoAcoes.logCl = []
+
         # Busca a primeira simulação, para pegar as datas
         simula = calculaSimulacoes.getPrimeiraSimulacao()
 
@@ -32,11 +36,13 @@ class CategorizacaoAcoes():
         close_prices = np.vstack([q["Close"] for q in dfs])
         open_prices = np.vstack([q["Open"] for q in dfs])
 
-        # The daily variations of the quotes are what carry most information
+        # Busca os dados da variaçao de preços (fechamento - abertura) para gerar a variação
         variation = close_prices - open_prices
 
+        # Gera os primeiros clusters
         clusters = CategorizacaoAcoes.clusterizacao(variation, names)
 
+        # Inicia o processo de configuração e salvamento das informações no banco
         CategorizacaoAcoes.iniciaPosClusterizacao(clusters)
 
     def iniciaPosClusterizacao(clusters):
@@ -73,6 +79,7 @@ class CategorizacaoAcoes():
                     CategorizacaoAcoes.salvaClusterAcao(
                         cl[i], 'Cluster ' + str(i))
 
+    # Metodo que salva qual cluster a Ação faz parte
     def salvaClusterAcao(acao, cluster):
         ac = Acao.objects.get(codigo=acao)
 
@@ -82,10 +89,13 @@ class CategorizacaoAcoes():
 
         ac.classificacao_ia = cluster
         ac.save()
+        CategorizacaoAcoes.logCl.append(
+            'Acao: ' + acao + ' - ' + cluster)
 
     def getQtdeNeceClusters():
         return Perfil.objects.all().count()
 
+    # Metodo que faz o processo de Clusterização
     def clusterizacao(value, acoesNomes):
         # #############################################################################
         # Learn a graphical structure from the correlations
