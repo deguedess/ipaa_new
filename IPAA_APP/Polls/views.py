@@ -48,7 +48,8 @@ def index(request):
 
 def configCluster(request):
 
-    CategorizacaoAcoes.primeiraCategorizacao()
+    # CategorizacaoAcoes.primeiraCategorizacao()
+    CategorizacaoAcoes.testeInfo()
     info = CategorizacaoAcoes.logCl
 
     context = {

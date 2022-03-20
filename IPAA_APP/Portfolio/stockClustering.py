@@ -1,9 +1,11 @@
 
 
+from re import I
 from Polls.models import Acao, Perfil
 from Polls.simulation import calculaSimulacoes
 from Portfolio.stockPrediction import PrevisaoAcoes
 import numpy as np
+import pandas as pd
 from sklearn import cluster, covariance
 
 
@@ -11,11 +13,54 @@ class CategorizacaoAcoes():
 
     logCl = []
 
+    def testeInfo():
+        # Busca a primeira simulação, para pegar as datas
+        simula = calculaSimulacoes.getSimulacaoInicial()
+
+        # Pega todas as ações
+        Acoes = Acao.objects.all()
+
+        codigos = []
+        dfs = []
+        for acao in Acoes:
+            cod = acao.codigo
+
+            # Busca as informações sobre as ações no periodo
+            df = PrevisaoAcoes.getValoresBolsa(
+                cod, simula.data_ini, simula.data_fim)
+            if (not df.empty):
+
+                codigos.append(cod)
+                sec_data = df['Adj Close']
+                # retorno diario
+                sec_returns = np.log(sec_data / sec_data.shift(1))
+
+                df['Media'] = sec_returns.mean() * 250
+                df['Desvio'] = sec_returns.std() * 250 ** 0.5
+
+                print('====> ' + cod)
+
+                dfs.append(df)
+
+        names = np.array(sorted(codigos)).T
+
+        std_prices = np.vstack([q["Desvio"] for q in dfs])
+        mean_prices = np.vstack([q["Media"] for q in dfs])
+
+        std_prices = std_prices[~np.isnan(std_prices)]
+
+        print(std_prices)
+
+        # Gera os primeiros clusters
+        clusters = CategorizacaoAcoes.clusterizacao(
+            std_prices, names)
+        print(clusters)
+
     def primeiraCategorizacao():
         CategorizacaoAcoes.logCl = []
 
         # Busca a primeira simulação, para pegar as datas
-        simula = calculaSimulacoes.getPrimeiraSimulacao()
+        simula = calculaSimulacoes.getSimulacaoInicial()
 
         # Pega todas as ações
         Acoes = Acao.objects.all()
@@ -38,6 +83,8 @@ class CategorizacaoAcoes():
 
         # Busca os dados da variaçao de preços (fechamento - abertura) para gerar a variação
         variation = close_prices - open_prices
+
+        print(variation)
 
         # Gera os primeiros clusters
         clusters = CategorizacaoAcoes.clusterizacao(variation, names)
