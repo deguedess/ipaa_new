@@ -24,6 +24,18 @@ class Simulacao_acao(models.Model):
     valor_novo = models.DecimalField(
         max_digits=7, decimal_places=2)
 
+    classificacao_ia = models.CharField(
+        max_length=100, blank=True)
+
+    valor_movimentacao = models.DecimalField(
+        max_digits=7, decimal_places=2, blank=True, null=True)
+
+    valor_retorno = models.DecimalField(
+        max_digits=7, decimal_places=2, blank=True, null=True)
+
+    desvio_padrao = models.DecimalField(
+        max_digits=7, decimal_places=2, blank=True, null=True)
+
     def __str__(self):
         return self.simulacao.nome + " - " + self.acao.nome
 

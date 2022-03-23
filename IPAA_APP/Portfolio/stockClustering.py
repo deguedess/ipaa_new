@@ -1,5 +1,6 @@
 
 
+import datetime
 from re import I
 from Polls.models import Acao, Perfil
 from Polls.simulation import calculaSimulacoes
@@ -12,6 +13,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+
+from Simulation.models import Simulacao_acao
 
 
 class CategorizacaoAcoes():
@@ -56,7 +59,7 @@ class CategorizacaoAcoes():
         for i in range(len(dfClu.index)):
 
             CategorizacaoAcoes.salvaClusterAcao(
-                acao=dfClu['companies'][i], cluster=dfClu['labels'][i])
+                acao=dfClu['companies'][i], cluster=dfClu['labels'][i], simula=simula, moviment=sum_of_movement[i])
 
     def iniciaClusterizacao(values, acoesDic):
         # Define a normalizer
@@ -75,6 +78,25 @@ class CategorizacaoAcoes():
         return pd.DataFrame({'labels': labels, 'companies': list(
             acoesDic.values())}).sort_values(by=['labels'], axis=0)
 
+    # Metodo que calcula o valor de retorno de uma ação a aprtir da data inicial até a final
+    def calculaValorRetornoeDesvio(df, diction, simula):
+        retornoFinal = []
+        desvioPadrao = []
+
+        diasUteis = CategorizacaoAcoes.getDiasUteis(
+            simula.data_ini, simula.data_fim)
+
+        for com in list(diction.values()):
+            retDiario = df['Close'][com].pct_change()
+            retDiario = (retDiario + 1).cumprod()-1
+            retornoFinal.append(retDiario[len(retDiario)-1])
+
+            ret = np.log(df['Adj Close'][com] / df['Adj Close'][com].shift(1))
+            desv = ret.std() * diasUteis ** 0.5
+            desvioPadrao.append(desv)
+
+        return pd.DataFrame({'Retorno': retornoFinal, 'Desvio': desvioPadrao})
+
     def converteAcoesToDict(acoes):
         dicti = dict()
         for acao in acoes:
@@ -91,19 +113,38 @@ class CategorizacaoAcoes():
 
     # Metodo que salva qual cluster a Ação faz parte
 
-    def salvaClusterAcao(acao, cluster):
+    def salvaClusterAcao(acao, cluster, simula, moviment):
         acao = acao.replace('.SA', '')
 
         ac = Acao.objects.get(codigo=acao)
 
         if (ac == None):
-            print('Acao nao encontrada: ' + acao)
+            CategorizacaoAcoes.logCl.append(
+                'Ação  não encontrada: ' + acao)
             return
 
-        ac.classificacao_ia = cluster
-        ac.save()
+        simAc = Simulacao_acao.objects.get(acao=ac, simulacao=simula)
+
+        if (simAc == None):
+            CategorizacaoAcoes.logCl.append(
+                'Simulação: {} não encontrada para ação: {}'.format(simula, acao))
+            return
+
+        simAc.valor_movimentacao = moviment
+        simAc.classificacao_ia = cluster
+        simAc.save()
         CategorizacaoAcoes.logCl.append(
-            'Acao: ' + acao + ' - ' + str(cluster))
+            'Ação {} para Simulação {} - Cluster: {}'.format(acao, simula, cluster))
 
     def getQtdeClusters():
         return Perfil.objects.all().count()
+
+    def getDiasUteis(a, b):
+        return sum(1 for day in CategorizacaoAcoes.iterdates(a, b) if day.weekday not in (5, 6))
+
+    def iterdates(date1, date2):
+        one_day = datetime.timedelta(days=1)
+        current = date1
+        while current < date2:
+            yield current
+            current += one_day

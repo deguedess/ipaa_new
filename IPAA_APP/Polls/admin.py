@@ -15,7 +15,7 @@ class MotivoAdmin(admin.ModelAdmin):
 
 @admin.register(Acao)
 class AcaoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'codigo', 'nome', 'classificacao_ia')
+    list_display = ('id', 'codigo', 'nome')
 
 
 @admin.register(Grau_Instrucao)
@@ -75,8 +75,9 @@ class Hist_alt_carteira(admin.ModelAdmin):
 
 @admin.register(Simulacao_acao)
 class Simulacao_acao(admin.ModelAdmin):
-    list_display = ('acao', 'simulacao', 'valor_ant', 'valor_novo')
-    list_filter = ('simulacao', 'acao')
+    list_display = ('acao', 'simulacao', 'valor_ant',
+                    'valor_novo', 'classificacao_ia', 'valor_movimentacao', 'valor_retorno', 'desvio_padrao')
+    list_filter = ('simulacao', 'acao', 'classificacao_ia')
 
 
 @admin.register(Carteira_Simulacao)
