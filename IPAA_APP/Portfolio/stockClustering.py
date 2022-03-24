@@ -3,12 +3,9 @@
 import datetime
 from re import I
 from Polls.models import Acao, Perfil
-from Polls.simulation import calculaSimulacoes
-from Portfolio.stockPrediction import PrevisaoAcoes
 import numpy as np
 import pandas as pd
 from pandas_datareader import data
-from sklearn import cluster, covariance
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from sklearn.cluster import KMeans
@@ -21,22 +18,22 @@ class CategorizacaoAcoes():
 
     logCl = []
 
-    def testeInfo():
-
-        # Busca a primeira simulação, para pegar as datas
-        simula = calculaSimulacoes.getSimulacaoInicial()
-
+    def iniciaDicionario():
         # Pega todas as ações
         Acoes = Acao.objects.all()
 
         # converte as ações em dicionários para geração da clusterização
-        acoesDic = CategorizacaoAcoes.converteAcoesToDict(Acoes)
+        return CategorizacaoAcoes.converteAcoesToDict(Acoes)
+
+    # Usa dados reais do passado para fazer a primeira clusterização
+    def clusterizaoPrimeiroCenario(simula):
+        acoesDic = CategorizacaoAcoes.iniciaDicionario()
 
         # Carrega as informações das ações
         df = data.DataReader(list(acoesDic.values()), data_source='yahoo',
                              start=simula.data_ini, end=simula.data_fim)
 
-        lenAcoes = len(acoesDic)  # Qtde de ações com dados
+        # lenAcoes = len(acoesDic)  # Qtde de ações com dados
 
         # Busca as informações dos preços de abertura
         stock_open = np.array(df['Open']).T
@@ -50,16 +47,63 @@ class CategorizacaoAcoes():
 
         # Tendo uma soma positiva, significa COMPRA
         # Tendo uma soma negativa, significa VENDA
-        for i in range(lenAcoes):
-            print('company:{}, Change:{}'.format(
-                df['High'].columns[i], sum_of_movement[i]))
+        # for i in range(lenAcoes):
+        # print('company:{}, Change:{}'.format(
+        # df['High'].columns[i], sum_of_movement[i]))
 
+        CategorizacaoAcoes.iniciaProcesso(df=df, movements=movements, acoesDic=acoesDic,
+                                          simula=simula, sumOfMovement=sum_of_movement)
+
+    # Usa os próprios dados gerados pelo sistema (previsões) para fazer a clusterização
+    def clusterizacaoCenariosSimulacao(simula):
+
+        acoesDic = CategorizacaoAcoes.iniciaDicionario()
+
+        precoAnt = []
+        precoFin = []
+
+        for acao in list(acoesDic.values()):
+            acao = acao.replace('.SA', '')
+
+            ac = Acao.objects.get(codigo=acao)
+            acaoS = Simulacao_acao.objects.get(simulacao=simula, acao=ac)
+
+            precoAnt.append(acaoS.valor_ant)
+            precoFin.append(acaoS.valor_novo)
+
+        df = pd.DataFrame({'Acao': acoesDic.values(), 'Open': precoAnt,
+                           'Close': precoFin, 'Adj Close': None})
+
+        df.set_index("Acao", inplace=True)
+
+        # Busca as informações dos preços de abertura
+        stock_open = np.array(df['Open']).T
+        # Busca as informações dos preços de fechamento
+        stock_close = np.array(df['Close']).T
+
+        movements = stock_close - stock_open
+
+        df['Adj Close'] = movements
+
+        # a Soma de movimentação de uma companhia é definido somando as diferenças de fechamento e abertura durante os dias
+        sum_of_movement = np.sum(movements, 0)
+
+        CategorizacaoAcoes.iniciaProcesso(df=df, movements=movements, acoesDic=acoesDic,
+                                          simula=simula, sumOfMovement=sum_of_movement)
+
+    def iniciaProcesso(df, movements, acoesDic, simula, sumOfMovement):
+
+        # Clusterização das ações
         dfClu = CategorizacaoAcoes.iniciaClusterizacao(movements, acoesDic)
+        # Busca os outros valores
+        otrVal = CategorizacaoAcoes.calculaValorRetornoeDesvio(
+            df=df, diction=acoesDic, simula=simula)
 
         for i in range(len(dfClu.index)):
 
             CategorizacaoAcoes.salvaClusterAcao(
-                acao=dfClu['companies'][i], cluster=dfClu['labels'][i], simula=simula, moviment=sum_of_movement[i])
+                acao=dfClu['companies'][i], cluster=dfClu['labels'][i], simula=simula, moviment=sumOfMovement[i],
+                desvioP=otrVal['Desvio'][i], retornoF=otrVal['Retorno'][i])
 
     def iniciaClusterizacao(values, acoesDic):
         # Define a normalizer
@@ -113,7 +157,7 @@ class CategorizacaoAcoes():
 
     # Metodo que salva qual cluster a Ação faz parte
 
-    def salvaClusterAcao(acao, cluster, simula, moviment):
+    def salvaClusterAcao(acao, cluster, simula, moviment, retornoF, desvioP):
         acao = acao.replace('.SA', '')
 
         ac = Acao.objects.get(codigo=acao)
@@ -132,6 +176,8 @@ class CategorizacaoAcoes():
 
         simAc.valor_movimentacao = moviment
         simAc.classificacao_ia = cluster
+        simAc.valor_retorno = retornoF
+        simAc.desvio_padrao = desvioP
         simAc.save()
         CategorizacaoAcoes.logCl.append(
             'Ação {} para Simulação {} - Cluster: {}'.format(acao, simula, cluster))

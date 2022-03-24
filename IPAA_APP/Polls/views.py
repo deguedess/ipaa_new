@@ -48,9 +48,16 @@ def index(request):
 
 def configCluster(request):
 
-    # CategorizacaoAcoes.primeiraCategorizacao()
-    CategorizacaoAcoes.testeInfo()
-    info = CategorizacaoAcoes.logCl
+    simulacoes = Simulacao_cenarios.objects.all()
+
+    info = []
+    for simula in simulacoes:
+        if (simula == calculaSimulacoes.getSimulacaoInicial()):
+            CategorizacaoAcoes.clusterizaoPrimeiroCenario(simula=simula)
+        else:
+            CategorizacaoAcoes.clusterizacaoCenariosSimulacao(simula=simula)
+
+        info.extend(CategorizacaoAcoes.logCl)
 
     context = {
         'infos': info,
