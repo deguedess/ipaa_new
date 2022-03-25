@@ -1,7 +1,7 @@
 
 
 import datetime
-from re import I
+
 from Polls.models import Acao, Perfil
 import numpy as np
 import pandas as pd
@@ -10,6 +10,8 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer
 from sklearn.cluster import KMeans
 from sklearn.decomposition import PCA
+from Polls.simulation import calculaSimulacoes
+from Portfolio.stockPrediction import PrevisaoAcoes
 
 from Simulation.models import Simulacao_acao
 
@@ -52,29 +54,32 @@ class CategorizacaoAcoes():
         # df['High'].columns[i], sum_of_movement[i]))
 
         CategorizacaoAcoes.iniciaProcesso(df=df, movements=movements, acoesDic=acoesDic,
-                                          simula=simula, sumOfMovement=sum_of_movement)
+                                          simula=simula, sumOfMovement=sum_of_movement, checkSimula=True)
 
     # Usa os próprios dados gerados pelo sistema (previsões) para fazer a clusterização
     def clusterizacaoCenariosSimulacao(simula):
 
         acoesDic = CategorizacaoAcoes.iniciaDicionario()
+        simulaInicial = calculaSimulacoes.getSimulacaoInicial()
 
-        precoAnt = []
-        precoFin = []
+        dias = abs((simula.data_fim - simula.data_ini).days)
 
-        for acao in list(acoesDic.values()):
-            acao = acao.replace('.SA', '')
+        # Carrega as informações das ações
+        df = data.DataReader(list(acoesDic.values()), data_source='yahoo',
+                             start=simulaInicial.data_ini, end=simulaInicial.data_fim)
 
-            ac = Acao.objects.get(codigo=acao)
-            acaoS = Simulacao_acao.objects.get(simulacao=simula, acao=ac)
+        #DEBUGAR
 
-            precoAnt.append(acaoS.valor_ant)
-            precoFin.append(acaoS.valor_novo)
+        #OPEN - previsao
+        dfPredOpen = PrevisaoAcoes.iniciaPrevisao(
+            final_data=df, attri='Open', dTraining=dias)
 
-        df = pd.DataFrame({'Acao': acoesDic.values(), 'Open': precoAnt,
-                           'Close': precoFin, 'Adj Close': None})
+        #CLOSE - Previsao
+        dfPredClose = PrevisaoAcoes.iniciaPrevisao(
+            final_data=df, attri='Close', dTraining=dias)
 
-        df.set_index("Acao", inplace=True)
+        df['Open'] = dfPredOpen['Predictions']
+        df['Close'] = dfPredClose['Predictions']
 
         # Busca as informações dos preços de abertura
         stock_open = np.array(df['Open']).T
@@ -83,18 +88,22 @@ class CategorizacaoAcoes():
 
         movements = stock_close - stock_open
 
-        df['Adj Close'] = movements
+        #df['Adj Close'] = movements
 
         # a Soma de movimentação de uma companhia é definido somando as diferenças de fechamento e abertura durante os dias
         sum_of_movement = np.sum(movements, 0)
 
-        CategorizacaoAcoes.iniciaProcesso(df=df, movements=movements, acoesDic=acoesDic,
-                                          simula=simula, sumOfMovement=sum_of_movement)
+        #movements = movements.reshape(1, -1)
+        print(movements)
 
-    def iniciaProcesso(df, movements, acoesDic, simula, sumOfMovement):
+        CategorizacaoAcoes.iniciaProcesso(df=df, movements=movements, acoesDic=acoesDic,
+                                          simula=simula, sumOfMovement=sum_of_movement, checkSimula=False)
+
+    def iniciaProcesso(df, movements, acoesDic, simula, sumOfMovement, checkSimula):
 
         # Clusterização das ações
-        dfClu = CategorizacaoAcoes.iniciaClusterizacao(movements, acoesDic)
+        dfClu = CategorizacaoAcoes.iniciaClusterizacao(
+            movements, acoesDic, checkSimula)
         # Busca os outros valores
         otrVal = CategorizacaoAcoes.calculaValorRetornoeDesvio(
             df=df, diction=acoesDic, simula=simula)
@@ -105,16 +114,21 @@ class CategorizacaoAcoes():
                 acao=dfClu['companies'][i], cluster=dfClu['labels'][i], simula=simula, moviment=sumOfMovement[i],
                 desvioP=otrVal['Desvio'][i], retornoF=otrVal['Retorno'][i])
 
-    def iniciaClusterizacao(values, acoesDic):
+    def iniciaClusterizacao(values, acoesDic, checkSimula):
         # Define a normalizer
         normalizer = Normalizer()
-        # Reduce the data
-        reduced_data = PCA(n_components=2)
+        if (checkSimula):
+            reduced_data = PCA(n_components=2)
         # Create Kmeans model
         kmeans = KMeans(
             n_clusters=CategorizacaoAcoes.getQtdeClusters(), max_iter=1000)
+
         # Make a pipeline chaining normalizer and kmeans
-        pipeline = make_pipeline(normalizer, reduced_data, kmeans)
+        if (checkSimula):
+            pipeline = make_pipeline(normalizer, reduced_data, kmeans)
+        else:
+            pipeline = make_pipeline(normalizer, kmeans)
+
         # Fit pipeline to daily stock movements
         pipeline.fit(values)
         labels = pipeline.predict(values)

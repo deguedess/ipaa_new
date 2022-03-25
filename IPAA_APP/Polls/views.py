@@ -52,10 +52,11 @@ def configCluster(request):
 
     info = []
     for simula in simulacoes:
-        if (simula == calculaSimulacoes.getSimulacaoInicial()):
+        if (simula.id == calculaSimulacoes.getSimulacaoInicial().id):
             CategorizacaoAcoes.clusterizaoPrimeiroCenario(simula=simula)
         else:
             CategorizacaoAcoes.clusterizacaoCenariosSimulacao(simula=simula)
+            print('')
 
         info.extend(CategorizacaoAcoes.logCl)
 
