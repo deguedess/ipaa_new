@@ -56,6 +56,8 @@ class PrevisaoAcoes():
         else:
             simAcao.valor_ant = float(valorAnt)
 
+        simAcao.classificacao_ia = ''
+
         simAcao.save()
 
     def calculaPrevisaoSimulacao(simulacao, pos):
@@ -102,7 +104,7 @@ class PrevisaoAcoes():
 
                 # Busca as previsoes
                 dfPred = PrevisaoAcoes.iniciaPrevisao(
-                    final_data=final_data, attri='Close', dTraining=dTraining)
+                    final_data=final_data.filter(['Close']), dTraining=dTraining)
 
                 PrevisaoAcoes.salvaSimulacao(
                     simulacao, acao, None, dfPred['Predictions'].iloc[-1], pos)
@@ -110,10 +112,10 @@ class PrevisaoAcoes():
                 PrevisaoAcoes.info.append('Valores da Ação ' + str(acao.codigo) +
                                           ' foram cadastrados com sucesso')
 
-    def iniciaPrevisao(final_data, attri, dTraining):
+    def iniciaPrevisao(final_data, dTraining):
 
         # 1. Pega somente os valores de fechamento
-        close_data = final_data.filter([attri])
+        close_data = final_data
 
         # 2. Converte em Array
         dataset = close_data.values

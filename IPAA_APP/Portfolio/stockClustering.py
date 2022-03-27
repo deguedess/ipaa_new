@@ -20,16 +20,28 @@ class CategorizacaoAcoes():
 
     logCl = []
 
-    def iniciaDicionario():
+    def iniciaDicionario(simulacao):
+        CategorizacaoAcoes.logCl = []
         # Pega todas as ações
-        Acoes = Acao.objects.all()
+        AcoesAll = Acao.objects.all()
 
-        # converte as ações em dicionários para geração da clusterização
-        return CategorizacaoAcoes.converteAcoesToDict(Acoes)
+        if (simulacao == None):
+            # converte as ações em dicionários para geração da clusterização
+            return CategorizacaoAcoes.converteAcoesToDict(AcoesAll)
+
+        # Busca apenas as ações que nao possuem classificação de IA
+        return CategorizacaoAcoes.converteAcoesToDict(PrevisaoAcoes.getAcoes(
+            Simulacao_acao.objects.filter(simulacao=simulacao, classificacao_ia__exact='')))
 
     # Usa dados reais do passado para fazer a primeira clusterização
+
     def clusterizaoPrimeiroCenario(simula):
-        acoesDic = CategorizacaoAcoes.iniciaDicionario()
+        acoesDic = CategorizacaoAcoes.iniciaDicionario(simula)
+
+        if (acoesDic == None or not acoesDic):
+            CategorizacaoAcoes.logCl.append(
+                'Nenhuma ação encontrada sem classificação de IA para Simulação {}'.format(simula))
+            return
 
         # Carrega as informações das ações
         df = data.DataReader(list(acoesDic.values()), data_source='yahoo',
@@ -59,7 +71,13 @@ class CategorizacaoAcoes():
     # Usa os próprios dados gerados pelo sistema (previsões) para fazer a clusterização
     def clusterizacaoCenariosSimulacao(simula):
 
-        acoesDic = CategorizacaoAcoes.iniciaDicionario()
+        acoesDic = CategorizacaoAcoes.iniciaDicionario(simula)
+
+        if (acoesDic == None or not acoesDic):
+            CategorizacaoAcoes.logCl.append(
+                'Nenhuma ação encontrada sem classificação de IA para Simulação {}'.format(simula))
+            return
+
         simulaInicial = calculaSimulacoes.getSimulacaoInicial()
 
         dias = abs((simula.data_fim - simula.data_ini).days)
@@ -68,18 +86,30 @@ class CategorizacaoAcoes():
         df = data.DataReader(list(acoesDic.values()), data_source='yahoo',
                              start=simulaInicial.data_ini, end=simulaInicial.data_fim)
 
-        #DEBUGAR
+        df.reset_index(inplace=True)
 
-        #OPEN - previsao
-        dfPredOpen = PrevisaoAcoes.iniciaPrevisao(
-            final_data=df, attri='Open', dTraining=dias)
+        for ac in list(acoesDic.values()):
 
-        #CLOSE - Previsao
-        dfPredClose = PrevisaoAcoes.iniciaPrevisao(
-            final_data=df, attri='Close', dTraining=dias)
+            print('Fazendo do {}'.format(ac))
 
-        df['Open'] = dfPredOpen['Predictions']
-        df['Close'] = dfPredClose['Predictions']
+            openV = pd.DataFrame({'Open': df['Open'][ac]})
+            closeV = pd.DataFrame({'Close': df['Close'][ac]})
+
+            #OPEN - previsao
+            dfPredOpen = PrevisaoAcoes.iniciaPrevisao(
+                final_data=openV, dTraining=dias)
+
+            #CLOSE - Previsao
+            dfPredClose = PrevisaoAcoes.iniciaPrevisao(
+                final_data=closeV, dTraining=dias)
+
+            tam = len(dfPredOpen['Predictions'].values)
+
+            df['Open'][ac][:tam] = dfPredOpen['Predictions'].values
+
+            df['Close'][ac][:tam] = dfPredClose['Predictions'].values
+
+            # TODO ADJ_CLOSE
 
         # Busca as informações dos preços de abertura
         stock_open = np.array(df['Open']).T
@@ -94,7 +124,6 @@ class CategorizacaoAcoes():
         sum_of_movement = np.sum(movements, 0)
 
         #movements = movements.reshape(1, -1)
-        print(movements)
 
         CategorizacaoAcoes.iniciaProcesso(df=df, movements=movements, acoesDic=acoesDic,
                                           simula=simula, sumOfMovement=sum_of_movement, checkSimula=False)

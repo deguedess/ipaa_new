@@ -11,6 +11,7 @@ from Polls.security import checkAccess
 from Polls.simulation import calculaSimulacoes
 from Portfolio.stockClustering import CategorizacaoAcoes
 from Portfolio.stockPrediction import PrevisaoAcoes
+from Portfolio.stockProfile import PerfilInvestimento
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
@@ -52,6 +53,7 @@ def configCluster(request):
 
     info = []
     for simula in simulacoes:
+
         if (simula.id == calculaSimulacoes.getSimulacaoInicial().id):
             CategorizacaoAcoes.clusterizaoPrimeiroCenario(simula=simula)
         else:
@@ -75,7 +77,8 @@ def config(request):
     info = []
 
     for simula in simulacoes:
-        info.extend(PrevisaoAcoes.calculaPrevisaoSimulacao(simula, pos))
+        PrevisaoAcoes.calculaPrevisaoSimulacao(simula, pos)
+        info.extend(PrevisaoAcoes.info)
         pos += 1
 
     # END TEST STOCK
@@ -126,11 +129,11 @@ def portfolio(request):
 
     perf = calculaPortfolio.verificaPerfil(userid)
 
-    # TODO
     acoesRec = None
 
     if (tipo == 0):
-        acoesRec = Acao.objects.order_by('codigo')[:3]
+        acoesRec = PerfilInvestimento.getAcoesByPerfil(
+            perf, calculaSimulacoes.getSimulacaoInicial())
 
     cart = calculaPortfolio.criaCarteiraSemAcoes(
         userid, tipo)
@@ -184,11 +187,11 @@ def simulation(request, pk):
 
     ultimoCenario = not request.session['cenario_atual'] < qtde
 
-    # TODO
     acoesRec = None
 
     if (cartUser.tipo_grupo == 0):
-        acoesRec = Acao.objects.order_by('id')[:3]
+        acoesRec = PerfilInvestimento.getAcoesByPerfil(
+            cartUser.usuario.perfil, simulacao)  # TODO ERROR AQI PERFIL
 
     # Criar os campos na tela
     SimulatiomForm.getAcoesSimulacao(form, simulacao, ultimoCenario, acoesRec)
