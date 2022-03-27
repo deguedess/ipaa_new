@@ -189,6 +189,8 @@ def simulation(request, pk):
 
     acoesRec = None
 
+    print(cartUser.usuario)
+
     if (cartUser.tipo_grupo == 0):
         acoesRec = PerfilInvestimento.getAcoesByPerfil(
             cartUser.usuario.perfil, simulacao)  # TODO ERROR AQI PERFIL

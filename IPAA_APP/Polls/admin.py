@@ -52,7 +52,7 @@ class PerfilAdmin(admin.ModelAdmin):
 
 @admin.register(Usuario)
 class Usuario(admin.ModelAdmin):
-    list_display = ('idade', 'genero', 'grau_instrucao',
+    list_display = ('id', 'idade', 'genero', 'grau_instrucao',
                     'profissao', 'data_cadastro', 'perfil')
 
 

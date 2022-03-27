@@ -20,6 +20,10 @@ class calculaPortfolio():
             perf = Perfil.objects.get(
                 peso_inicial__lte=ptos, peso_final__gte=ptos)
 
+            user = Usuario.objects.get(id=userid)
+            user.perfil = perf
+            user.save()
+
         except Exception as e:
             perf = 'Perfil Não Encontrado'
             print(e)
