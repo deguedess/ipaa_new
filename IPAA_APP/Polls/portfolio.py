@@ -43,6 +43,7 @@ class calculaPortfolio():
 
 # metodo para criação da carteira inicial
 
+
     def criaCarteiraSemAcoes(userid, tipoGrupo):
 
         cart = calculaPortfolio.verificaCarteira(userid)
@@ -145,7 +146,6 @@ class calculaPortfolio():
 
 # metodo para salvar alteração de carteira
 
-
     def registraAlteracao(acao, carteira, oper, recIA, segRec, motivo, simulacao):
 
         if (motivo == None):
@@ -178,9 +178,3 @@ class calculaPortfolio():
 
     def getHistoricoAlteracaoCart(carteira):
         return Hist_alt_carteira.objects.filter(carteira=carteira)
-
-
-# metodo para verificar quais as ações se encaixam no perfil
-
-    def calculaAcoes():
-        pass

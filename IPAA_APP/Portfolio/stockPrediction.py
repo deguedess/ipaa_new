@@ -1,10 +1,8 @@
 
 
-from typing import final
 from Polls.models import Acao
 import pandas as pd
 from pandas_datareader import data as web
-from datetime import timedelta
 import numpy as np
 
 from keras.models import Sequential

@@ -31,7 +31,7 @@ class CategorizacaoAcoes():
 
         # Busca apenas as ações que nao possuem classificação de IA
         return CategorizacaoAcoes.converteAcoesToDict(PrevisaoAcoes.getAcoes(
-            Simulacao_acao.objects.filter(simulacao=simulacao, classificacao_ia__exact='')))
+            Simulacao_acao.objects.filter(simulacao=simulacao, classificacao_ia__exact='')))  # TODO caso tenha uma açao sem dados, da erro, precisa verificar todas de novo naquela simula
 
     # Usa dados reais do passado para fazer a primeira clusterização
 

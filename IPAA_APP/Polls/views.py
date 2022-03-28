@@ -15,9 +15,7 @@ from Portfolio.stockProfile import PerfilInvestimento
 from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
-# Create your views here.
-
-
+# PAGINA INICIAL
 def index(request):
     form = RegisterUserForm()
 
@@ -41,10 +39,11 @@ def index(request):
 
     context = {
         'form': form,
-
     }
 
     return render(request, 'index.html', context)
+
+# PAGINA DE AGRUPAMENTO DE AÇÕES
 
 
 def configCluster(request):
@@ -54,9 +53,11 @@ def configCluster(request):
     info = []
     for simula in simulacoes:
 
+        # Categoriza conforme dados reais
         if (simula.id == calculaSimulacoes.getSimulacaoInicial().id):
             CategorizacaoAcoes.clusterizaoPrimeiroCenario(simula=simula)
         else:
+            # Categoriza conforme previsao
             CategorizacaoAcoes.clusterizacaoCenariosSimulacao(simula=simula)
             print('')
 
@@ -68,26 +69,26 @@ def configCluster(request):
 
     return render(request, 'configCluster.html', context)
 
+# PAGINA DE PREVISAO DOS VALORES DAS AÇÕES
+
 
 def config(request):
-    # BEGIN TEST STOCK
 
     simulacoes = calculaSimulacoes.getAllSimulacao()
     pos = 0
-    info = []
+    PrevisaoAcoes.info = []
 
     for simula in simulacoes:
         PrevisaoAcoes.calculaPrevisaoSimulacao(simula, pos)
-        info.extend(PrevisaoAcoes.info)
         pos += 1
 
-    # END TEST STOCK
     context = {
-        'infos': info,
-
+        'infos': PrevisaoAcoes.info,
     }
 
     return render(request, 'config.html', context)
+
+# PAGINA DE PERGUNTAS
 
 
 def polls(request):
@@ -118,6 +119,8 @@ def polls(request):
     }
     return render(request, 'polls.html', context)
 
+# PAGINA DA GERAÇÃO DA CARTEIRA
+
 
 def portfolio(request):
     userid = request.session['usuario']
@@ -131,10 +134,11 @@ def portfolio(request):
 
     acoesRec = None
 
-    if (tipo == 0):
+    if (tipo == 0):  # busca as recomendações de IA
         acoesRec = PerfilInvestimento.getAcoesByPerfil(
             perf, calculaSimulacoes.getSimulacaoInicial())
 
+    # cria a carteira inicial sem ações
     cart = calculaPortfolio.criaCarteiraSemAcoes(
         userid, tipo)
 
@@ -167,6 +171,8 @@ def portfolio(request):
     }
     return render(request, 'portfolio.html', context)
 
+# PAGINA DAS SIMULAÇÕES
+
 
 def simulation(request, pk):
 
@@ -191,9 +197,9 @@ def simulation(request, pk):
 
     print(cartUser.usuario)
 
-    if (cartUser.tipo_grupo == 0):
+    if (cartUser.tipo_grupo == 0):  # Busca as recomendações de IA
         acoesRec = PerfilInvestimento.getAcoesByPerfil(
-            cartUser.usuario.perfil, simulacao)  # TODO ERROR AQI PERFIL
+            cartUser.usuario.perfil, simulacao)
 
     # Criar os campos na tela
     SimulatiomForm.getAcoesSimulacao(form, simulacao, ultimoCenario, acoesRec)
@@ -253,6 +259,8 @@ def simulation(request, pk):
     }
     return render(request, 'simulation.html', context)
 
+# PAGINA FINAL
+
 
 def end(request):
 
@@ -266,6 +274,8 @@ def end(request):
     }
 
     return render(request, 'end.html', context)
+
+# PAGINA DE ERRO
 
 
 def error(request):
@@ -288,24 +298,3 @@ def error(request):
     }
 
     return render(request, 'error.html', context)
-
-
-class UsuarioListView(generic.ListView):
-    model = Usuario
-
-
-class PerguntaListView(generic.ListView):
-    model = Pergunta
-    context_object_name = 'Perguntas'
-    queryset = Pergunta.objects.filter()[:1]
-    template_name = 'books/my_arbitrary_template_name_list.html'
-
-
-class UserCreate(CreateView):
-    model = Usuario
-    fields = ['idade', 'genero', 'grau_instrucao', 'profissao']
-
-
-def detail(request, question_id):
-    question = get_object_or_404(Pergunta, pk=question_id)
-    return render(request, 'detail.html', {'Pergunta': question})

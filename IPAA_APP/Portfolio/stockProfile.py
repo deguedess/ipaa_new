@@ -5,17 +5,23 @@ from Simulation.models import Simulacao_acao
 
 class PerfilInvestimento():
 
-    # TODO VALIDAR NULOS E VAZIOS
     def getRelacaoBySimulacao(simula):
+        # Busca as ações por ordem de desvio padrão
         acoesS = Simulacao_acao.objects.filter(
             simulacao=simula).order_by('desvio_padrao')
+
+        # busca os perfis por ordem de peso_inicial
         perfis = Perfil.objects.all().order_by('peso_inicial')
         relacao = dict()
 
-        acaoClu = []
+        acaoClu = []  # cria uma dicionário com as classificações de IA
         for ac in acoesS:
             if (ac.classificacao_ia not in acaoClu):
                 acaoClu.append(ac.classificacao_ia)
+
+        # Se houver menos classificações que perfis, houve um erro na geração
+        if len(acaoClu) is not perfis.count():
+            return None
 
         itera = 0
         for perfil in perfis:
@@ -27,6 +33,9 @@ class PerfilInvestimento():
 
     def getAcoesByPerfil(perfil, simula):
         relacao = PerfilInvestimento.getRelacaoBySimulacao(simula)
+
+        if relacao == None:
+            return None
 
         acoesS = Simulacao_acao.objects.filter(
             simulacao=simula, classificacao_ia=relacao[perfil.id])
