@@ -220,6 +220,9 @@ class Simulacao_cenarios(models.Model):
     data_fim = models.DateField(
         null=False, blank=False)
 
+    indice_previsao = models.IntegerField(
+        blank=True, null=True)
+
     def __str__(self):
         return self.nome
 
