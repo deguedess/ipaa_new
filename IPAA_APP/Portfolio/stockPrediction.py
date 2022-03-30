@@ -109,7 +109,7 @@ class PrevisaoAcoes():
                     final_data=final_data.filter(['Close']), dTraining=dTraining)
 
                 valorFinal = PrevisaoAcoes.addNoise(
-                    simula=simulacao, valorIni=dfPred['Predictions'].iloc[0], valorFim=dfPred['Predictions'].iloc[-1])
+                    simula=simulacao, valorIni=dfPred['Predictions'].iloc[0], valorFim=dfPred['Predictions'].iloc[-1], df=final_data)
 
                 # Salva os valores da ações na simulação
                 PrevisaoAcoes.salvaSimulacao(
@@ -188,12 +188,21 @@ class PrevisaoAcoes():
 
         return valid
 
-    def addNoise(simula, valorIni, valorFim):
-        value = valorFim - valorIni
-
-        value = (value * simula.indice_previsao / 100) / 2  # TODO
+    def addNoise(simula, valorIni, valorFim, df):
+        dif = valorFim - valorIni
 
         print('O valor era {}'.format(valorFim))
+
+        ret = np.log(df['Adj Close'] / df['Adj Close'].shift(1))
+
+        value = (ret.std() * (simula.indice_previsao/2))
+
+        # multiplica o desvio padrao em percentual com o valor final da ação
+        value = (valorFim * (value * 10))/100
+
+        if (dif < 0):
+            value = value * -1
+
         print('E vai aumentar {} '.format(value))
 
         return valorFim + value
