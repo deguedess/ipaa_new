@@ -2,7 +2,7 @@
 
 import datetime
 
-from Polls.models import Acao, Perfil
+from Polls.models import Acao, Perfil, Simulacao_cenarios
 import numpy as np
 import pandas as pd
 from pandas_datareader import data
@@ -28,6 +28,8 @@ class CategorizacaoAcoes():
         if (simulacao == None):
             # converte as ações em dicionários para geração da clusterização
             return CategorizacaoAcoes.converteAcoesToDict(AcoesAll)
+
+        CategorizacaoAcoes.validaAcoesSimulacao()
 
         # Busca apenas as ações que nao possuem classificação de IA
         return CategorizacaoAcoes.converteAcoesToDict(PrevisaoAcoes.getAcoes(
@@ -224,6 +226,23 @@ class CategorizacaoAcoes():
         simAc.save()
         CategorizacaoAcoes.logCl.append(
             'Ação {} para Simulação {} - Cluster: {}'.format(acao, simula, cluster))
+
+    # Função que verifica se há ação sem clusterização e "limpa" a clusterização das outras ações no mesmo periodo
+    def validaAcoesSimulacao():
+        simulacoes = Simulacao_cenarios.objects.all()
+
+        for simula in simulacoes:
+            simA = Simulacao_acao.objects.filter(
+                simulacao=simula, classificacao_ia__exact='')
+
+            if (not simA):
+                continue
+
+            # busca o restante das ações e limpa o campo clusterização
+            sims = Simulacao_acao.objects.filter(simulacao=simula)
+            for simul in sims:
+                simul.classificacao_ia = ''
+                simul.save()
 
     def getQtdeClusters():
         return Perfil.objects.all().count()
