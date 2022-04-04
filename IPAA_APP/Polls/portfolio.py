@@ -1,7 +1,6 @@
 import datetime
 from Polls.models import Perfil, Respostas_usuario, Simulacao_cenarios, Usuario, Motivo
 from Polls.simulation import calculaSimulacoes
-from Polls.views import motivo
 from Portfolio.models import Carteiras, Hist_alt_carteira
 from Simulation.models import Simulacao_acao
 

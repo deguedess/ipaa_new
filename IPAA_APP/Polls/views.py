@@ -1,11 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic.edit import CreateView
 from django.urls import reverse
-
-from Polls.models import Pergunta, Simulacao_cenarios, Usuario, Acao
-from django.views import generic
-
+from Polls.models import Simulacao_cenarios
 from Polls.portfolio import calculaPortfolio
 from Polls.security import checkAccess
 from Polls.simulation import calculaSimulacoes
