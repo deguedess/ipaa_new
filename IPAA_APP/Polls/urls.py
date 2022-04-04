@@ -11,5 +11,6 @@ urlpatterns = [
     path('error', views.error, name='error'),
     path('config', views.config, name='config'),
     path('configCluster', views.configCluster, name='configCluster'),
+    path('motivo', views.motivo, name='motivo'),
 
 ]

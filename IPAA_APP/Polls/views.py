@@ -259,6 +259,22 @@ def simulation(request, pk):
     }
     return render(request, 'simulation.html', context)
 
+# PAGINA QUE O USUARIO INFORMA O MOTIVO
+
+
+def motivo(request):
+
+    if request.method == 'POST':
+
+        print('POST')
+
+    context = {
+        # "percent": percent
+
+    }
+
+    return render(request, 'motivo.html', context)
+
 # PAGINA FINAL
 
 

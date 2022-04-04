@@ -1,7 +1,9 @@
 import datetime
 from Polls.models import Perfil, Respostas_usuario, Simulacao_cenarios, Usuario, Motivo
 from Polls.simulation import calculaSimulacoes
+from Polls.views import motivo
 from Portfolio.models import Carteiras, Hist_alt_carteira
+from Simulation.models import Simulacao_acao
 
 # Metodo para buscar as respostas do usuario e definir o perfil
 
@@ -42,7 +44,6 @@ class calculaPortfolio():
 
 
 # metodo para criação da carteira inicial
-
 
     def criaCarteiraSemAcoes(userid, tipoGrupo):
 
@@ -95,6 +96,7 @@ class calculaPortfolio():
 
     def salvaHistoricoCarteiraIA(cart, acoesSel, acoesRec, simula):
         acoesCart = cart.acoes.all()
+        recomend = calculaPortfolio.getMotivos('Recomendação')
 
         # verifica as acoes selecionadas = COMPRAS
         for acSel in acoesSel:
@@ -103,7 +105,7 @@ class calculaPortfolio():
                 # verifica se a alteração foi recomendada ou nao
                 if (acSel in acoesRec):
                     calculaPortfolio.registraAlteracao(
-                        acSel, cart, 'C', True, True, None, simula)
+                        acSel, cart, 'C', True, True, recomend, simula)
                 else:  # se nao for recomendação
                     calculaPortfolio.registraAlteracao(
                         acSel, cart, 'C', False, False, None, simula)
@@ -115,7 +117,7 @@ class calculaPortfolio():
                 # verificar se a venda foi recomendada ou nao
                 if (acCart in acoesRec):
                     calculaPortfolio.registraAlteracao(
-                        acCart, cart, 'V', False, False, None, simula)
+                        acCart, cart, 'V', False, False, recomend, simula)
                 else:  # se nao for recomendação
                     calculaPortfolio.registraAlteracao(
                         acCart, cart, 'V', True, True, None, simula)
@@ -146,13 +148,14 @@ class calculaPortfolio():
 
 # metodo para salvar alteração de carteira
 
+
     def registraAlteracao(acao, carteira, oper, recIA, segRec, motivo, simulacao):
 
         if (motivo == None):
-            if (carteira.tipo_grupo == 0):
-                motivo = calculaPortfolio.getMotivos('Recomendação')
-            else:
+            if (carteira.tipo_grupo == 1):
                 motivo = calculaPortfolio.getMotivos('Escolha Pessoal')
+            else:
+                motivo = calculaPortfolio.getMotivos('Não Seguiu')
 
         hist = Hist_alt_carteira()
         hist.acao = acao
@@ -178,3 +181,13 @@ class calculaPortfolio():
 
     def getHistoricoAlteracaoCart(carteira):
         return Hist_alt_carteira.objects.filter(carteira=carteira)
+
+    def getNaoSeguiuRecomendacao(simula):
+        rec = calculaPortfolio.getMotivos('Não Seguiu')
+
+        simA = Simulacao_acao.objects.filter(motivo=rec, simulacao=simula)
+
+        if (not simA):
+            return None
+
+        return simA

@@ -1,0 +1,51 @@
+{% extends 'layouts/page.html' %}
+
+
+{% block content %}
+
+
+<div class="page register-page">
+    <div class="header">
+        <h1 class="title">Motivo Alteração</h1>
+    </div>
+
+    <h3 class="subtitle">As seguintes operações foram recomendadas através de Inteligência Artificial, porém, não foram seguidas.
+        Por favor, informe o motivo para cada uma das operações.
+    </h3>
+
+    <form method="POST" action="" class="register-form"> {% csrf_token %}
+        
+        <div class="acao-item">
+            
+            <table>
+                <tr>
+                    <td class="td-title-name">Operação</td>
+                    <td class="td-title-name">Ação</td>
+                    <td class="td-title-name">Motivo</td>
+                </tr>
+            {% for field in form %}
+                <tr>
+                    <td class="td-number">{{ field }} </td> 
+                    <td class="td-info">{{ field.label}}</td> 
+                </tr>
+            {% endfor %}
+            </table>
+
+        </div>
+        
+        <div class="question-list-error">
+            {% if form.errors %}
+                {% for field in form %}
+                    {% for error in field.errors %}
+                       {{ error|escape }}
+                    {% endfor %}
+                {% endfor %}
+            {% endif %}
+        </div>
+        
+        <input type="submit" value="Próximo" class="submit-button"/>
+    </form>
+</div>
+
+
+{% endblock %}

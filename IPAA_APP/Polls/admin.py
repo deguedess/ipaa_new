@@ -69,8 +69,8 @@ class Carteira(admin.ModelAdmin):
 @admin.register(Hist_alt_carteira)
 class Hist_alt_carteira(admin.ModelAdmin):
     list_display = ('data_alt', 'carteira', 'operacao',
-                    'acao', 'recomendacao_ia', 'seguiu_recomendacao', 'simulacao')
-    list_filter = ('carteira', 'acao')
+                    'acao', 'recomendacao_ia', 'seguiu_recomendacao', 'simulacao', 'motivo')
+    list_filter = ('acao', 'carteira')
 
 
 @admin.register(Simulacao_acao)

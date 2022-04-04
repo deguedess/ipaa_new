@@ -169,6 +169,50 @@ class PortfolioForm(forms.Form):
         self.add_error(f"acao_{acao.id}", 'Selecione ao menos uma Ação')
 
 
+class MotivoForm(forms.Form):
+
+    def __init__(self, acoes, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        acoesAll = Acao.objects.order_by('codigo')
+
+        # adiciona todas as ações recomendadas antes
+        if (acoes != None):
+            for acao in acoes:
+                # remove essa ação da lista geral para nao duplicar
+                acoesAll = acoesAll.exclude(pk=acao.id)
+
+                criaCamposForm.criaCamposBool(self, acao, True)
+
+        # adiciona o restante
+        for acao in acoesAll:
+            criaCamposForm.criaCamposBool(self, acao, False)
+
+    def save(self):
+        data = self.cleaned_data
+
+        selected = []
+
+        # mudar para buscar cfe usuario
+        for acao in Acao.objects.order_by('codigo'):
+            checked = data[f"acao_{acao.id}"]
+            if (checked):
+                selected.append(acao)
+
+        return selected
+
+    def clean(self):
+        data = super().clean()
+
+        # mudar para buscar cfe usuario
+        for acao in Acao.objects.order_by('codigo'):
+            checked = data[f"acao_{acao.id}"]
+            if (checked):
+                return
+
+        self.add_error(f"acao_{acao.id}", 'Selecione ao menos uma Ação')
+
+
 class criaCamposForm():
     def criaCamposBool(form, obj, init):
         form.fields[f"acao_{obj.id}"] = forms.BooleanField(
