@@ -8,7 +8,7 @@ from Polls.simulation import calculaSimulacoes
 from Portfolio.stockClustering import CategorizacaoAcoes
 from Portfolio.stockPrediction import PrevisaoAcoes
 from Portfolio.stockProfile import PerfilInvestimento
-from .forms import RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
+from .forms import MotivoForm, RegisterUserForm, SurveyForm, PortfolioForm, SimulatiomForm
 
 
 # PAGINA INICIAL
@@ -124,7 +124,8 @@ def portfolio(request):
     tipo = userid % 2
 
     if (request.session['trava'] and checkAccess.canAccessSimulation(userid, None) == False):
-        return redirect('IPAA:error')
+        # return redirect('IPAA:error')
+        print("LEMBRA DE VOLTAR A TRAAVA")
 
     perf = calculaPortfolio.verificaPerfil(userid)
 
@@ -155,7 +156,23 @@ def portfolio(request):
             calculaPortfolio.criaAcoesCarteira(cart, selected)
 
             request.session['cenario_atual'] = 1
-            return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+
+            if (tipo == 1):
+                return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+
+            print("checando se nao seguiu rec")
+
+            simulaIni = calculaSimulacoes.getSimulacaoInicial()
+
+            # verifica se houve algo que o usuaraio nao seguiu
+            hist = calculaPortfolio.getNaoSeguiuRecomendacao(
+                simula=simulaIni, carteira=cart)
+
+            if (hist == None):
+                return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+            else:
+                return redirect('IPAA:motivo')
+
         else:
             for field in form:
                 print("Field Error:", field.name,  field.errors)
@@ -190,8 +207,6 @@ def simulation(request, pk):
     ultimoCenario = not request.session['cenario_atual'] < qtde
 
     acoesRec = None
-
-    print(cartUser.usuario)
 
     if (cartUser.tipo_grupo == 0):  # Busca as recomendações de IA
         acoesRec = PerfilInvestimento.getAcoesByPerfil(
@@ -260,13 +275,25 @@ def simulation(request, pk):
 
 def motivo(request):
 
+    url = request.session['url']
+    userid = request.session['usuario']
+    nextSimula = request.session['simula']
+    atual = request.session['cenario_atual']
+
+    # Busca a carteira do usuario
+    cartUser = SimulatiomForm.getCarteira(userid)
+    simulaPre = calculaSimulacoes.getSimulacaoPre(atual=atual)
+
+    form = MotivoForm(simulaPre, cartUser)
+
     if request.method == 'POST':
+        form = MotivoForm(simulaPre, cartUser, request.POST)
+        if form.is_valid():
+            form = form.save()
 
-        print('POST')
-
+            return HttpResponseRedirect(reverse(url, args=(nextSimula,)))
     context = {
-        # "percent": percent
-
+        "form": form
     }
 
     return render(request, 'motivo.html', context)

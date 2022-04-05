@@ -4,14 +4,11 @@ from dataclasses import field
 from pickle import FALSE
 from django.core.exceptions import NON_FIELD_ERRORS
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from Polls.admin import Carteira
-
-from Polls.models import Acao, Pergunta, Resposta, Respostas_usuario, Simulacao_cenarios, Usuario
+from Polls.models import Acao, Motivo, Pergunta, Resposta, Respostas_usuario, Usuario
+from Polls.portfolio import calculaPortfolio
 from Polls.simulation import calculaSimulacoes
 from Portfolio.models import Carteiras
 #from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -171,46 +168,36 @@ class PortfolioForm(forms.Form):
 
 class MotivoForm(forms.Form):
 
-    def __init__(self, acoes, *args, **kwargs):
+    hists = []
+
+    def __init__(self, simulacao, carteira, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        acoesAll = Acao.objects.order_by('codigo')
+        MotivoForm.hists = calculaPortfolio.getNaoSeguiuRecomendacao(
+            simula=simulacao, carteira=carteira)
 
-        # adiciona todas as ações recomendadas antes
-        if (acoes != None):
-            for acao in acoes:
-                # remove essa ação da lista geral para nao duplicar
-                acoesAll = acoesAll.exclude(pk=acao.id)
+        print("essas vao aparecer {}".format(MotivoForm.hists))
 
-                criaCamposForm.criaCamposBool(self, acao, True)
+        if (MotivoForm.hists == None):
+            return
 
-        # adiciona o restante
-        for acao in acoesAll:
-            criaCamposForm.criaCamposBool(self, acao, False)
+        for hist in MotivoForm.hists:
+            self.fields[f"hist_{hist.id}"] = forms.ModelChoiceField(
+                queryset=Motivo.objects.all()
+            )
+            self.fields[f"hist_{hist.id}"].label = hist.acao
 
     def save(self):
         data = self.cleaned_data
 
-        selected = []
+        if (MotivoForm.hists == None):
+            return
 
-        # mudar para buscar cfe usuario
-        for acao in Acao.objects.order_by('codigo'):
-            checked = data[f"acao_{acao.id}"]
-            if (checked):
-                selected.append(acao)
+        for hist in MotivoForm.hists:
+            choice = data[f"hist_{hist.id}"]
 
-        return selected
-
-    def clean(self):
-        data = super().clean()
-
-        # mudar para buscar cfe usuario
-        for acao in Acao.objects.order_by('codigo'):
-            checked = data[f"acao_{acao.id}"]
-            if (checked):
-                return
-
-        self.add_error(f"acao_{acao.id}", 'Selecione ao menos uma Ação')
+            hist.motivo = choice
+            hist.save()
 
 
 class criaCamposForm():

@@ -2,7 +2,6 @@ import datetime
 from Polls.models import Perfil, Respostas_usuario, Simulacao_cenarios, Usuario, Motivo
 from Polls.simulation import calculaSimulacoes
 from Portfolio.models import Carteiras, Hist_alt_carteira
-from Simulation.models import Simulacao_acao
 
 # Metodo para buscar as respostas do usuario e definir o perfil
 
@@ -181,10 +180,11 @@ class calculaPortfolio():
     def getHistoricoAlteracaoCart(carteira):
         return Hist_alt_carteira.objects.filter(carteira=carteira)
 
-    def getNaoSeguiuRecomendacao(simula):
+    def getNaoSeguiuRecomendacao(simula, carteira):
         rec = calculaPortfolio.getMotivos('Não Seguiu')
 
-        simA = Simulacao_acao.objects.filter(motivo=rec, simulacao=simula)
+        simA = Hist_alt_carteira.objects.filter(
+            motivo=rec, simulacao=simula, carteira=carteira)
 
         if (not simA):
             return None
