@@ -10,7 +10,8 @@ from Simulation.models import Carteira_Simulacao, Simulacao_acao
 
 @admin.register(Motivo)
 class MotivoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nome')
+    list_display = ('id', 'nome', 'aparece')
+    list_filter = ('aparece', 'nome')
 
 
 @admin.register(Acao)

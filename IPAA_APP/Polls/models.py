@@ -12,6 +12,8 @@ class Motivo(models.Model):
     nome = models.CharField(
         max_length=100, help_text='Informe o nome do motivo')
 
+    aparece = models.BooleanField()
+
     def __str__(self):
         return self.nome
 

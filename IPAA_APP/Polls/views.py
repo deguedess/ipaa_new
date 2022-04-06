@@ -160,8 +160,6 @@ def portfolio(request):
             if (tipo == 1):
                 return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
 
-            print("checando se nao seguiu rec")
-
             simulaIni = calculaSimulacoes.getSimulacaoInicial()
 
             # verifica se houve algo que o usuaraio nao seguiu
@@ -221,6 +219,9 @@ def simulation(request, pk):
     # busca o percentual
     percent = calculaSimulacoes.getPercentualCarteira(cartUser, simulacao)
 
+    percentA = calculaSimulacoes.getPercentualAcumuladoCarteira(
+        carteira=cartUser)
+
     if request.method == 'POST':
         post = request.POST
         form = SimulatiomForm(post)
@@ -250,7 +251,18 @@ def simulation(request, pk):
                 request.session['url'] = 'IPAA:simulation'
                 request.session['simula'] = idSimula
 
-                return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+                if (cartUser.tipo_grupo == 1):
+                    return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+
+                 # verifica se houve algo que o usuaraio nao seguiu
+                hist = calculaPortfolio.getNaoSeguiuRecomendacao(
+                    simula=simulacao, carteira=cartUser)
+
+                if (hist == None):
+                    return HttpResponseRedirect(reverse('IPAA:simulation', args=(idSimula,)))
+                else:
+                    return redirect('IPAA:motivo')
+
             else:
                 return redirect('IPAA:end')
 
@@ -266,7 +278,8 @@ def simulation(request, pk):
         "qtde": qtde,
         "atual": request.session['cenario_atual'],
         "lista": listAll,
-        "percent": percent
+        "percent": percent,
+        "percentA": percentA
     }
     return render(request, 'simulation.html', context)
 

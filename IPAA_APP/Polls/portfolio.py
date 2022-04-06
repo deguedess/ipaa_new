@@ -115,10 +115,15 @@ class calculaPortfolio():
                 # verificar se a venda foi recomendada ou nao
                 if (acCart in acoesRec):
                     calculaPortfolio.registraAlteracao(
-                        acCart, cart, 'V', False, False, recomend, simula)
+                        acCart, cart, 'V', False, False, None, simula)
                 else:  # se nao for recomendação
                     calculaPortfolio.registraAlteracao(
-                        acCart, cart, 'V', True, True, None, simula)
+                        acCart, cart, 'V', True, True, recomend, simula)
+            else:  # se ela estiver selecionada, verifica se houve recomendação ou nao
+                # verificar se a venda foi recomendada ou nao
+                if (acCart not in acoesRec):
+                    calculaPortfolio.registraAlteracao(
+                        acCart, cart, 'V', False, False, None, simula)
 
          # Verifica as RECOMENDADAS
         for acRec in acoesRec:
@@ -184,9 +189,25 @@ class calculaPortfolio():
         rec = calculaPortfolio.getMotivos('Não Seguiu')
 
         simA = Hist_alt_carteira.objects.filter(
-            motivo=rec, simulacao=simula, carteira=carteira)
+            motivo=rec, simulacao=simula, carteira=carteira).order_by('operacao')
 
         if (not simA):
             return None
 
         return simA
+
+    def getNomeOperacao(histAlt):
+
+        if (histAlt == None):
+            return ''
+
+        if (histAlt.operacao == 'C'):  # se foi compra
+            if (histAlt.recomendacao_ia):  # e foi recomendado, então ele nao comprou
+                return 'Não Seguiu Recomendação de Compra'
+            else:
+                return 'Compra sem Recomendação'  # comprou sem recomendação
+        else:  # se foi venda
+            if (histAlt.recomendacao_ia):  # e foi recomendado, então ele nao vendeu
+                return 'Venda sem Recomendação'
+            else:
+                return 'Não Seguiu Recomendação de Venda'  # vendeu sem recomendação

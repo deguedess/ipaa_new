@@ -3,6 +3,7 @@
 from django import forms
 from Polls.models import Simulacao_cenarios
 from Simulation.models import Carteira_Simulacao, Simulacao_acao
+from django.db.models import Sum
 
 
 class calculaSimulacoes():
@@ -47,8 +48,6 @@ class calculaSimulacoes():
     def getPercentualCarteira(carteira, simulacao):
 
         listaAcao = carteira.acoes.all()
-        print('calculando para')
-        print(simulacao.id)
 
         percent = 0
         for acao in listaAcao:
@@ -61,6 +60,10 @@ class calculaSimulacoes():
                              simulaAcao.valor_ant)/simulaAcao.valor_ant)*100
 
         return percent
+
+    def getPercentualAcumuladoCarteira(carteira):
+
+        return Carteira_Simulacao.objects.filter(carteira=carteira).aggregate(Sum('percentual'))
 
     def salvaCarteiraSimulacao(carteira, percent, cenAtual):
 

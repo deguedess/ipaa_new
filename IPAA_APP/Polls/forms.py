@@ -176,16 +176,15 @@ class MotivoForm(forms.Form):
         MotivoForm.hists = calculaPortfolio.getNaoSeguiuRecomendacao(
             simula=simulacao, carteira=carteira)
 
-        print("essas vao aparecer {}".format(MotivoForm.hists))
-
         if (MotivoForm.hists == None):
             return
 
         for hist in MotivoForm.hists:
             self.fields[f"hist_{hist.id}"] = forms.ModelChoiceField(
-                queryset=Motivo.objects.all()
+                queryset=Motivo.objects.filter(aparece=True)
             )
-            self.fields[f"hist_{hist.id}"].label = hist.acao
+            self.fields[f"hist_{hist.id}"].label = calculaPortfolio.getNomeOperacao(hist) + \
+                ' - ' + hist.acao.codigo
 
     def save(self):
         data = self.cleaned_data
