@@ -37,6 +37,7 @@ class calculaPortfolio():
         except Exception as e:
             motivo = Motivo()
             motivo.nome = nomeMotivo
+            motivo.aparece = False
             motivo.save()
             return motivo
 
