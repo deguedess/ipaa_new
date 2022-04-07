@@ -114,8 +114,9 @@ class calculaPortfolio():
             if (acCart not in acoesSel):
                 # verificar se a venda foi recomendada ou nao
                 if (acCart in acoesRec):
-                    calculaPortfolio.registraAlteracao(
-                        acCart, cart, 'V', False, False, None, simula)
+                    print('ok')
+                    # calculaPortfolio.registraAlteracao(
+                    # acCart, cart, 'V', False, False, None, simula)
                 else:  # se nao for recomendação
                     calculaPortfolio.registraAlteracao(
                         acCart, cart, 'V', True, True, recomend, simula)

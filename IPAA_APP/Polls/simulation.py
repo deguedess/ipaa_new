@@ -59,11 +59,14 @@ class calculaSimulacoes():
                 percent += ((simulaAcao.valor_novo -
                              simulaAcao.valor_ant)/simulaAcao.valor_ant)*100
 
-        return percent
+        return float(percent)
 
     def getPercentualAcumuladoCarteira(carteira):
 
-        return Carteira_Simulacao.objects.filter(carteira=carteira).aggregate(Sum('percentual'))
+        total = Carteira_Simulacao.objects.filter(carteira=carteira).aggregate(
+            Sum('percentual'))['percentual__sum'] or 0.00
+
+        return float(total)
 
     def salvaCarteiraSimulacao(carteira, percent, cenAtual):
 

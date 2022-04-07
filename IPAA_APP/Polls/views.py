@@ -220,7 +220,7 @@ def simulation(request, pk):
     percent = calculaSimulacoes.getPercentualCarteira(cartUser, simulacao)
 
     percentA = calculaSimulacoes.getPercentualAcumuladoCarteira(
-        carteira=cartUser)
+        carteira=cartUser) + percent
 
     if request.method == 'POST':
         post = request.POST
@@ -316,12 +316,20 @@ def motivo(request):
 
 def end(request):
 
+    userid = request.session['usuario']
+
+    # Busca a carteira do usuario
+    cartUser = SimulatiomForm.getCarteira(userid)
+
+    percentA = calculaSimulacoes.getPercentualAcumuladoCarteira(
+        carteira=cartUser)
+
     if request.method == 'POST':
 
         print('POST')
 
     context = {
-        # "percent": percent
+        "percentA": percentA
 
     }
 
