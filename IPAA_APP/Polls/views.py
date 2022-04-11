@@ -13,6 +13,21 @@ from .forms import MotivoForm, RegisterUserForm, SurveyForm, PortfolioForm, Simu
 
 # PAGINA INICIAL
 def index(request):
+
+    if request.method == 'POST':
+
+        return redirect('IPAA:questions')
+
+    context = {
+        # 'url': url,
+    }
+
+    return render(request, 'intro.html', context)
+
+# PAGINA DAS PERGUNTAS INICIAIS
+
+
+def questions(request):
     form = RegisterUserForm()
 
     if request.method == 'POST':

@@ -1,0 +1,31 @@
+{% extends 'layouts/page.html' %}
+
+
+{% block content %}
+
+
+<div class="page register-page">
+    <div class="header">
+        <h1 class="title">Introdução</h1>
+    </div>
+
+    <h4 class="subtitle"><b>Prezado respondente, este estudo é uma pesquisa desenvolvida para analisar o comportamento do investidor. 
+        </br>Possui como objetivo analisar se a </b>“INTELIGÊNCIA ARTIFICIAL” <b>auxilia de alguma forma neste comportamento, evitando os vieses comportamentais.</b>
+    </br></br>COMO UTILIZAR O SIMULADOR:
+    </h4>
+    <div class="intro">
+        <p>1.	Irá preencher os dados de perfil;</p>
+        <p>2.	Irá responder o questionário o qual determinara o seu perfil de investidor;</p>
+        <p>3.	Será destinado aleatoriamente para um dos dois grupos da pesquisa: com auxílio da IA e sem auxílio da IA;</p>
+        <p>4.	Será direcionado ao simulador, o qual terá que marcar as ações a qual deseja manter em sua carteira de investimentos, 
+            período após período; (desmarque para <b>“vender”</b> uma ação, removendo ela de sua carteira, ou pode marcar uma ação para <b>“comprar”</b>, incluindo ela em sua carteira.)</p>
+        <p>5.	Ao final das simulações receberá seu Desempenho acumulado de todos os períodos.</p>
+    </div>
+
+    <form method="POST" action="" class="register-form"> {% csrf_token %}
+        <input type="submit" value="Clique aqui para Iniciar" class="submit-button-error"/>
+    </form>
+</div>
+
+
+{% endblock %}

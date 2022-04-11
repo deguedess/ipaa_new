@@ -207,7 +207,7 @@ class calculaPortfolio():
             if (histAlt.recomendacao_ia):  # e foi recomendado, então ele nao comprou
                 return 'Não Seguiu Recomendação de Compra'
             else:
-                return 'Compra sem Recomendação'  # comprou sem recomendação
+                return 'Operação sem Recomendação'  # comprou sem recomendação
         else:  # se foi venda
             if (histAlt.recomendacao_ia):  # e foi recomendado, então ele nao vendeu
                 return 'Venda sem Recomendação'

@@ -45,7 +45,7 @@
             <table>
                 <tr>
                     <td class="td-title">Desempenho <u>Acumulado</u> de sua Carteira:</td>
-                    {% if percent < 0 %}
+                    {% if percentA < 0 %}
                         <td class="NegativeTransaction"><b>{{ percentA |floatformat:2 }} %</b></td>
                     {% else %}
                         <td class="PositiveTransaction"><b>{{ percentA |floatformat:2 }} %</b></td>

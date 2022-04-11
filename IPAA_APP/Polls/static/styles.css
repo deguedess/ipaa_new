@@ -176,6 +176,16 @@ td,
   background-color: #f8f8f8;
 }
 
+.intro {
+  color: black;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  padding: 18px;
+  border-radius: 20px;
+  background-color: #f8f8f8;
+}
+
 .acao-item {
   color: black;
   font-size: 18px;

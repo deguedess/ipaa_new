@@ -4,6 +4,7 @@ from . import views
 app_name = 'IPAA'
 urlpatterns = [
     path('', views.index, name='index'),
+    path('questions', views.questions, name='questions'),
     path('polls', views.polls, name='polls'),
     path('portfolio', views.portfolio, name='portfolio'),
     path('<int:pk>/simulation', views.simulation, name='simulation'),
