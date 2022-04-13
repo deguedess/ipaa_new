@@ -98,6 +98,31 @@ class calculaSimulacoes():
 
         return listAll
 
+    def getInfAcoesPortofolio(form, simula):
+
+        simu = calculaSimulacoes.getAcoesSimulacoes(simula)
+
+        listAll = []
+        index = 0
+        for field in form:
+            ff = fieldInfo()
+            ff.valorAntigo = simu[index].valor_ant
+            ff.valorAtual = simu[index].valor_novo
+            ff.percent = getRentabilidade(simu[index].valor_retorno)
+            ff.field = field
+            ff.carteira = False
+            listAll.append(ff)
+            index += 1
+
+        return listAll
+
+
+def getRentabilidade(vlr):
+    if (vlr > 0):
+        return (vlr + 1) * 100
+    else:
+        return (vlr - 1) * 100
+
 
 class fieldInfo():
 

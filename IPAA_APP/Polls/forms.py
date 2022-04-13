@@ -124,46 +124,52 @@ class SimulatiomForm(forms.Form):
 
 class PortfolioForm(forms.Form):
 
-    def __init__(self, acoes, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        acoesAll = Acao.objects.order_by('codigo')
+    def getAcoesPortfolio(self, recomend):
+
+        simu = calculaSimulacoes.getAcoesSimulacoes(
+            calculaSimulacoes.getSimulacaoInicial())
+
+        acoesAll = []
+        for si in simu:
+            acoesAll.append(si.acao)
 
         # adiciona todas as ações recomendadas antes
-        if (acoes != None):
-            for acao in acoes:
+        if (recomend != None):
+            for acao in recomend:
                 # remove essa ação da lista geral para nao duplicar
-                acoesAll = acoesAll.exclude(pk=acao.id)
+                acoesAll.remove(acao)
 
                 criaCamposForm.criaCamposBool(self, acao, True)
 
         # adiciona o restante
         for acao in acoesAll:
+
             criaCamposForm.criaCamposBool(self, acao, False)
 
-    def save(self):
-        data = self.cleaned_data
+        return self
+
+    def save(self, listaAcoesSimula, listaAll):
 
         selected = []
 
-        # mudar para buscar cfe usuario
-        for acao in Acao.objects.order_by('codigo'):
-            checked = data[f"acao_{acao.id}"]
-            if (checked):
+        for acSimula in listaAcoesSimula:
+            acao = acSimula.acao
+
+            if (f"acao_{acao.id}" in listaAll):
                 selected.append(acao)
 
         return selected
 
-    def clean(self):
-        data = super().clean()
+    def cleanCheck(self, listaAcoesSimula, listaAll):
 
-        # mudar para buscar cfe usuario
-        for acao in Acao.objects.order_by('codigo'):
-            checked = data[f"acao_{acao.id}"]
-            if (checked):
-                return
+        values = PortfolioForm.save(self, listaAcoesSimula, listaAll)
 
-        self.add_error(f"acao_{acao.id}", 'Selecione ao menos uma Ação')
+        if (values == None or not values):
+            self.add_error(
+                None, 'Você deve selecionar ao menos uma ação antes de prosseguir')
 
 
 class MotivoForm(forms.Form):

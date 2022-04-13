@@ -95,6 +95,13 @@ blockquote {
   min-width: 200px;
 }
 
+.td-title-name-port {
+  padding: 10px 10px 10px 10px;
+  text-align: center;
+  font-weight: 700;
+  min-width: 250px;
+}
+
 .td-title-name-max {
   padding: 10px 10px 10px 10px;
   text-align: center;

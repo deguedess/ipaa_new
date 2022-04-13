@@ -139,8 +139,7 @@ def portfolio(request):
     tipo = userid % 2
 
     if (request.session['trava'] and checkAccess.canAccessSimulation(userid, None) == False):
-        # return redirect('IPAA:error')
-        print("LEMBRA DE VOLTAR A TRAAVA")
+        return redirect('IPAA:error')
 
     perf = calculaPortfolio.verificaPerfil(userid)
 
@@ -154,13 +153,26 @@ def portfolio(request):
     cart = calculaPortfolio.criaCarteiraSemAcoes(
         userid, tipo)
 
-    form = PortfolioForm(acoesRec)
+    form = PortfolioForm()
+
+    # Cria os caampos na tela
+    PortfolioForm.getAcoesPortfolio(form, acoesRec)
+
+    simulacao = calculaSimulacoes.getSimulacaoInicial()
+
+    listAll = calculaSimulacoes.getInfAcoesPortofolio(
+        form, simulacao)
 
     if request.method == 'POST':
-        form = PortfolioForm(acoesRec, request.POST)
+        post = request.POST
+        form = PortfolioForm(post)
+
+        form.cleanCheck(calculaSimulacoes.getAcoesSimulacoes(
+            simulacao), post)
 
         if form.is_valid():
-            selected = form.save()
+            selected = form.save(
+                calculaSimulacoes.getAcoesSimulacoes(simulacao), post)
 
             idSimula = calculaSimulacoes.getPrimeiraSimulacao().id
 
@@ -193,7 +205,9 @@ def portfolio(request):
     context = {
         "perf": perf,
         "form": form,
+        "lista": listAll,
         "cart": cart,
+        "simulacao": simulacao
     }
     return render(request, 'portfolio.html', context)
 

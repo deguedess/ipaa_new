@@ -27,22 +27,33 @@
     <form method="POST" action="" class="register-form"> {% csrf_token %}
         
         <div class="acao-item">
-            
-            <table>
+            <table >
                 <tr>
-                    <td class="td-title">Carteira</td>
-                    <td class="td-title-name-max">Ação</td>
+                    <td></td>
+                    <td class="td-title-name-port">Ação</td>
+                    <td class="td-title">Preço Atual</td>
+                    <td class="td-title">Rentabilidade (%)</td>
                 </tr>
-            {% for field in form %}
+            {% for fieldInfo in lista %}
                 <tr>
-                    <td class="td-number">{{ field }} </td> 
-                    <td class="td-info">{{ field.label}}</td> 
+                <td>{{ fieldInfo.field }} </td> 
+                <td> {{ fieldInfo.field.label}}  </td> 
+                <td class="td-number"> R$ {{ fieldInfo.valorAtual }}</td>
+                    {% if fieldInfo.percent < 0%}
+                        <td class="NegativeTransaction">{{ fieldInfo.percent|floatformat:2 }} %</td>
+                    {% else %}
+                        <td class="PositiveTransaction">{{ fieldInfo.percent|floatformat:2 }} %</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </table>
-
+            
         </div>
         
+        <div style="text-align: center;">
+            <b>NOTA: </b>Rentabilidade com base nos valores do Período: <b>{{ simulacao.data_ini|date:"d/m/Y"}} até {{ simulacao.data_fim|date:"d/m/Y" }}</b>
+        </div>
+
         <div class="question-list-error">
             {% if form.errors %}
                 {% for field in form %}
