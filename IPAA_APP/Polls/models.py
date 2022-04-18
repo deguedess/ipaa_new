@@ -62,6 +62,10 @@ class Acao(models.Model):
     nome = models.CharField(
         max_length=100, help_text='Informe o nome da ação')
 
+    split = models.BooleanField(
+        null=True, default=False
+    )
+
     def __str__(self):
         return self.codigo
 

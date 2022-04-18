@@ -36,6 +36,9 @@ class Simulacao_acao(models.Model):
     desvio_padrao = models.DecimalField(
         max_digits=7, decimal_places=2, blank=True, null=True)
 
+    dividend_yeld = models.DecimalField(
+        max_digits=7, decimal_places=2, blank=True, null=True)
+
     def __str__(self):
         return self.simulacao.nome + " - " + self.acao.nome
 

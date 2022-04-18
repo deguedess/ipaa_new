@@ -108,7 +108,7 @@ class calculaSimulacoes():
             ff = fieldInfo()
             ff.valorAntigo = simu[index].valor_ant
             ff.valorAtual = simu[index].valor_novo
-            ff.percent = getRentabilidade(simu[index].valor_retorno)
+            ff.percent = getRentabilidade(ff, simula, simu[index].acao)
             ff.field = field
             ff.carteira = False
             listAll.append(ff)
@@ -117,7 +117,18 @@ class calculaSimulacoes():
         return listAll
 
 
-def getRentabilidade(vlr):
+def getRentabilidade(ff, simula, acao):
+
+    antigo = ff.valorAntigo
+    atual = ff.valorAtual
+
+    #splits = PrevisaoAcoes.getSplits(acao, simula.data_ini, simula.data_fim)
+
+    # se houver splits, entao adiciona no calculo
+   # if (len(splits) > 0):
+
+    vlr = atual / antigo
+
     if (vlr > 0):
         return (vlr + 1) * 100
     else:
