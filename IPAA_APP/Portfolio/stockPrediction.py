@@ -220,7 +220,6 @@ class PrevisaoAcoes():
         return dfsplit
 
     # Retorna as informações das ações na Bolsa (actions = SPLIT e DIVIDEND)
-
     def getActionsStock(acao, data_ini, data_fim):
 
         try:
