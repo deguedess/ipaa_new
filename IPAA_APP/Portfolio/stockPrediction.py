@@ -10,6 +10,7 @@ from keras.layers import Dense, LSTM
 import math
 from sklearn.preprocessing import MinMaxScaler
 from Polls.simulation import calculaSimulacoes
+from Portfolio.stockInfo import infoMercadoAcoes
 from Simulation.models import Simulacao_acao
 
 
@@ -100,6 +101,10 @@ class PrevisaoAcoes():
                 if (firstSim == simulacao):
                     PrevisaoAcoes.salvaSimulacao(
                         simulacao, acao, final_data['Close'].iloc[0], final_data['Close'].iloc[-1], None)
+
+                    # Salva as informações de dividendos dessa ação
+                    infoMercadoAcoes.saveDividend(
+                        acao=acao, simulacao=simulacao)
                     continue
 
                 # Busca as previsoes
@@ -200,37 +205,3 @@ class PrevisaoAcoes():
             value = value * -1
 
         return valorFim + value
-
-    def getSplits(acao, data_ini, data_fim):
-        df = PrevisaoAcoes.getActionsStock(
-            acao=acao, data_fim=data_fim, data_ini=data_ini)
-
-        if df.empty:
-            return None
-
-        dfsplit = df[(df.action == 'SPLIT')]
-
-        if dfsplit.empty:
-            return None
-
-        # SAlva na ação que houve SPLIT
-        acao.split = True
-        acao.save()
-
-        return dfsplit
-
-    # Retorna as informações das ações na Bolsa (actions = SPLIT e DIVIDEND)
-    def getActionsStock(acao, data_ini, data_fim):
-
-        try:
-            # busca os valores das ações no periodo definido na simulação
-            df = web.DataReader(acao + ".SA", data_source='yahoo-actions',
-                                start=data_ini, end=data_fim)
-
-            # remove a data como index
-            # df.reset_index(inplace=True)
-
-            return df
-        except Exception as e:
-            print(e)
-            return pd.DataFrame()

@@ -2,6 +2,7 @@
 
 from django import forms
 from Polls.models import Simulacao_cenarios
+from Portfolio.stockInfo import infoMercadoAcoes
 from Simulation.models import Carteira_Simulacao, Simulacao_acao
 from django.db.models import Sum
 
@@ -122,17 +123,13 @@ def getRentabilidade(ff, simula, acao):
     antigo = ff.valorAntigo
     atual = ff.valorAtual
 
-    #splits = PrevisaoAcoes.getSplits(acao, simula.data_ini, simula.data_fim)
+    splits = infoMercadoAcoes.getSplits(acao, simula.data_ini, simula.data_fim)
 
     # se houver splits, entao adiciona no calculo
-   # if (len(splits) > 0):
+    if (splits is not None):
+        antigo = antigo * splits['value'].sum()
 
-    vlr = atual / antigo
-
-    if (vlr > 0):
-        return (vlr + 1) * 100
-    else:
-        return (vlr - 1) * 100
+    return (atual / antigo) * 100
 
 
 class fieldInfo():
