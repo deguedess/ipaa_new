@@ -50,10 +50,11 @@ class infoMercadoAcoes():
             return
 
         somaDiv = df[(df.action == 'DIVIDEND')]['value'].sum()
-        print(somaDiv)
 
         acaoSimula = Simulacao_acao.objects.get(acao=acao, simulacao=simulacao)
-        print(acaoSimula)
 
-        acaoSimula.dividend_yeld = somaDiv
+        acaoSimula.dividend_yeld = somaDiv / float(acaoSimula.valor_novo)
         acaoSimula.save()
+
+    def diff_month(d1, d2):
+        return (d1.year - d2.year) * 12 + d1.month - d2.month
