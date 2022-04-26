@@ -1,15 +1,14 @@
 import datetime
 
-from dataclasses import field
-from pickle import FALSE
 from django.core.exceptions import NON_FIELD_ERRORS
 from django import forms
 from Polls.models import Acao, Motivo, Pergunta, Resposta, Respostas_usuario, Usuario
 from Polls.portfolio import calculaPortfolio
 from Polls.simulation import calculaSimulacoes
 from Portfolio.models import Carteiras
-#from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
+# Formulário de cadastro do usuário
 
 
 class RegisterUserForm(forms.ModelForm):
@@ -50,8 +49,6 @@ class Perguntas(forms.ModelForm):
 
 
 class SurveyForm(forms.Form):
-
-    #question_1 = forms.ChoiceField(widget=forms.RadioSelect, choices=())
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -203,6 +200,8 @@ class MotivoForm(forms.Form):
 
             hist.motivo = choice
             hist.save()
+
+# Metodo generico para geração dos campos na tela
 
 
 class criaCamposForm():
